@@ -1,0 +1,524 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A001000100000001 /* LevelUpApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000100000001 /* LevelUpApp.swift */; };
+		A001000200000002 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000200000002 /* MainTabView.swift */; };
+		A001000300000003 /* Goal.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000300000003 /* Goal.swift */; };
+		A001000400000004 /* Workout.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000400000004 /* Workout.swift */; };
+		A001000500000005 /* FoodEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000500000005 /* FoodEntry.swift */; };
+		A001000600000006 /* WeightEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000600000006 /* WeightEntry.swift */; };
+		A001000700000007 /* Habit.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000700000007 /* Habit.swift */; };
+		A001000800000008 /* DataStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000800000008 /* DataStore.swift */; };
+		A001000900000009 /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000900000009 /* HealthKitService.swift */; };
+		A001000A0000000A /* NutritionixService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000A0000000A /* NutritionixService.swift */; };
+		A001000B0000000B /* ClaudeAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000B0000000B /* ClaudeAIService.swift */; };
+		A001000C0000000C /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000C0000000C /* NotificationService.swift */; };
+		A001000D0000000D /* GoalsDashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000D0000000D /* GoalsDashboardView.swift */; };
+		A001000E0000000E /* FitnessTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000E0000000E /* FitnessTrackerView.swift */; };
+		A001000F0000000F /* CalorieTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002000F0000000F /* CalorieTrackerView.swift */; };
+		A001001000000010 /* FoodSearchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001000000010 /* FoodSearchView.swift */; };
+		A001001100000011 /* WeightTrackerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001100000011 /* WeightTrackerView.swift */; };
+		A001001200000012 /* HabitsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001200000012 /* HabitsView.swift */; };
+		A001001300000013 /* AICoachView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001300000013 /* AICoachView.swift */; };
+		A001001400000014 /* WeeklyReportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001400000014 /* WeeklyReportView.swift */; };
+		A001001500000015 /* ProgressRingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001500000015 /* ProgressRingView.swift */; };
+		A001001600000016 /* StatCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001600000016 /* StatCardView.swift */; };
+		A001001700000017 /* CalorieProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001700000017 /* CalorieProgressBar.swift */; };
+		A001001800000018 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A002001800000018 /* SettingsView.swift */; };
+		A001001900000019 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A002001900000019 /* Assets.xcassets */; };
+		A001001A0000001A /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A002001A0000001A /* HealthKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		A002000100000001 /* LevelUpApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LevelUpApp.swift; sourceTree = "<group>"; };
+		A002000200000002 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		A002000300000003 /* Goal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Goal.swift; sourceTree = "<group>"; };
+		A002000400000004 /* Workout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Workout.swift; sourceTree = "<group>"; };
+		A002000500000005 /* FoodEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodEntry.swift; sourceTree = "<group>"; };
+		A002000600000006 /* WeightEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightEntry.swift; sourceTree = "<group>"; };
+		A002000700000007 /* Habit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Habit.swift; sourceTree = "<group>"; };
+		A002000800000008 /* DataStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataStore.swift; sourceTree = "<group>"; };
+		A002000900000009 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		A002000A0000000A /* NutritionixService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NutritionixService.swift; sourceTree = "<group>"; };
+		A002000B0000000B /* ClaudeAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeAIService.swift; sourceTree = "<group>"; };
+		A002000C0000000C /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
+		A002000D0000000D /* GoalsDashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalsDashboardView.swift; sourceTree = "<group>"; };
+		A002000E0000000E /* FitnessTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessTrackerView.swift; sourceTree = "<group>"; };
+		A002000F0000000F /* CalorieTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieTrackerView.swift; sourceTree = "<group>"; };
+		A002001000000010 /* FoodSearchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodSearchView.swift; sourceTree = "<group>"; };
+		A002001100000011 /* WeightTrackerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeightTrackerView.swift; sourceTree = "<group>"; };
+		A002001200000012 /* HabitsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HabitsView.swift; sourceTree = "<group>"; };
+		A002001300000013 /* AICoachView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AICoachView.swift; sourceTree = "<group>"; };
+		A002001400000014 /* WeeklyReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportView.swift; sourceTree = "<group>"; };
+		A002001500000015 /* ProgressRingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressRingView.swift; sourceTree = "<group>"; };
+		A002001600000016 /* StatCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatCardView.swift; sourceTree = "<group>"; };
+		A002001700000017 /* CalorieProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalorieProgressBar.swift; sourceTree = "<group>"; };
+		A002001800000018 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A002001900000019 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A002001A0000001A /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		A003000100000001 /* LevelUp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LevelUp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A004000100000001 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A005000100000001 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A001001A0000001A /* HealthKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A006000100000001 = {
+			isa = PBXGroup;
+			children = (
+				A006000200000002 /* LevelUp */,
+				A006000300000003 /* Frameworks */,
+				A006000400000004 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A006000200000002 /* LevelUp */ = {
+			isa = PBXGroup;
+			children = (
+				A006000500000005 /* App */,
+				A006000600000006 /* Models */,
+				A006000700000007 /* Services */,
+				A006000800000008 /* Views */,
+				A002001900000019 /* Assets.xcassets */,
+				A004000100000001 /* Info.plist */,
+			);
+			path = LevelUp;
+			sourceTree = "<group>";
+		};
+		A006000300000003 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				A002001A0000001A /* HealthKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		A006000400000004 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A003000100000001 /* LevelUp.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A006000500000005 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A002000100000001 /* LevelUpApp.swift */,
+				A002000200000002 /* MainTabView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A006000600000006 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A002000300000003 /* Goal.swift */,
+				A002000400000004 /* Workout.swift */,
+				A002000500000005 /* FoodEntry.swift */,
+				A002000600000006 /* WeightEntry.swift */,
+				A002000700000007 /* Habit.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A006000700000007 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A002000800000008 /* DataStore.swift */,
+				A002000900000009 /* HealthKitService.swift */,
+				A002000A0000000A /* NutritionixService.swift */,
+				A002000B0000000B /* ClaudeAIService.swift */,
+				A002000C0000000C /* NotificationService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A006000800000008 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A006000900000009 /* Dashboard */,
+				A006000A0000000A /* Fitness */,
+				A006000B0000000B /* Calories */,
+				A006000C0000000C /* Weight */,
+				A006000D0000000D /* Habits */,
+				A006000E0000000E /* Coach */,
+				A006000F0000000F /* WeeklyReport */,
+				A006001000000010 /* Components */,
+				A002001800000018 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A006000900000009 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				A002000D0000000D /* GoalsDashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		A006000A0000000A /* Fitness */ = {
+			isa = PBXGroup;
+			children = (
+				A002000E0000000E /* FitnessTrackerView.swift */,
+			);
+			path = Fitness;
+			sourceTree = "<group>";
+		};
+		A006000B0000000B /* Calories */ = {
+			isa = PBXGroup;
+			children = (
+				A002000F0000000F /* CalorieTrackerView.swift */,
+				A002001000000010 /* FoodSearchView.swift */,
+			);
+			path = Calories;
+			sourceTree = "<group>";
+		};
+		A006000C0000000C /* Weight */ = {
+			isa = PBXGroup;
+			children = (
+				A002001100000011 /* WeightTrackerView.swift */,
+			);
+			path = Weight;
+			sourceTree = "<group>";
+		};
+		A006000D0000000D /* Habits */ = {
+			isa = PBXGroup;
+			children = (
+				A002001200000012 /* HabitsView.swift */,
+			);
+			path = Habits;
+			sourceTree = "<group>";
+		};
+		A006000E0000000E /* Coach */ = {
+			isa = PBXGroup;
+			children = (
+				A002001300000013 /* AICoachView.swift */,
+			);
+			path = Coach;
+			sourceTree = "<group>";
+		};
+		A006000F0000000F /* WeeklyReport */ = {
+			isa = PBXGroup;
+			children = (
+				A002001400000014 /* WeeklyReportView.swift */,
+			);
+			path = WeeklyReport;
+			sourceTree = "<group>";
+		};
+		A006001000000010 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				A002001500000015 /* ProgressRingView.swift */,
+				A002001600000016 /* StatCardView.swift */,
+				A002001700000017 /* CalorieProgressBar.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A007000100000001 /* LevelUp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A009000100000001 /* Build configuration list for PBXNativeTarget "LevelUp" */;
+			buildPhases = (
+				A008000100000001 /* Sources */,
+				A005000100000001 /* Frameworks */,
+				A008000200000002 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LevelUp;
+			productName = LevelUp;
+			productReference = A003000100000001 /* LevelUp.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00A000100000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					A007000100000001 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = A009000200000002 /* Build configuration list for PBXProject "LevelUp" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A006000100000001;
+			productRefGroup = A006000400000004 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A007000100000001 /* LevelUp */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A008000200000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A001001900000019 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A008000100000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A001000100000001 /* LevelUpApp.swift in Sources */,
+				A001000200000002 /* MainTabView.swift in Sources */,
+				A001000300000003 /* Goal.swift in Sources */,
+				A001000400000004 /* Workout.swift in Sources */,
+				A001000500000005 /* FoodEntry.swift in Sources */,
+				A001000600000006 /* WeightEntry.swift in Sources */,
+				A001000700000007 /* Habit.swift in Sources */,
+				A001000800000008 /* DataStore.swift in Sources */,
+				A001000900000009 /* HealthKitService.swift in Sources */,
+				A001000A0000000A /* NutritionixService.swift in Sources */,
+				A001000B0000000B /* ClaudeAIService.swift in Sources */,
+				A001000C0000000C /* NotificationService.swift in Sources */,
+				A001000D0000000D /* GoalsDashboardView.swift in Sources */,
+				A001000E0000000E /* FitnessTrackerView.swift in Sources */,
+				A001000F0000000F /* CalorieTrackerView.swift in Sources */,
+				A001001000000010 /* FoodSearchView.swift in Sources */,
+				A001001100000011 /* WeightTrackerView.swift in Sources */,
+				A001001200000012 /* HabitsView.swift in Sources */,
+				A001001300000013 /* AICoachView.swift in Sources */,
+				A001001400000014 /* WeeklyReportView.swift in Sources */,
+				A001001500000015 /* ProgressRingView.swift in Sources */,
+				A001001600000016 /* StatCardView.swift in Sources */,
+				A001001700000017 /* CalorieProgressBar.swift in Sources */,
+				A001001800000018 /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		A009000300000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		A009000400000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_CYCLE = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A009000500000005 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LevelUp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.levelup.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		A009000600000006 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = LevelUp/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.levelup.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A009000100000001 /* Build configuration list for PBXNativeTarget "LevelUp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A009000500000005 /* Debug */,
+				A009000600000006 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A009000200000002 /* Build configuration list for PBXProject "LevelUp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A009000300000003 /* Debug */,
+				A009000400000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00A000100000001 /* Project object */;
+}
