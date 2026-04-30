@@ -2,7 +2,7 @@ import SwiftUI
 import UserNotifications
 
 @main
-struct LevelUpApp: App {
+struct GrindlyApp: App {
     @StateObject private var store = DataStore.shared
 
     init() {

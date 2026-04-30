@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>LevelUp</string>
+	<string>Grindly</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -23,9 +23,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSHealthShareUsageDescription</key>
-	<string>LevelUp reads your workouts, active calories, steps, and heart rate from Apple Health to give you a complete picture of your fitness progress.</string>
+	<string>Grindly reads your workouts, active calories, steps, and heart rate from Apple Health to give you a complete picture of your fitness progress.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>LevelUp can write workout sessions to Apple Health to keep all your fitness data in sync.</string>
+	<string>Grindly can write workout sessions to Apple Health to keep all your fitness data in sync.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -51,7 +51,7 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>NSUserNotificationUsageDescription</key>
-	<string>LevelUp sends daily reminders for your habits and weekly progress reports to keep you accountable.</string>
+	<string>Grindly sends daily reminders for your habits and weekly progress reports to keep you accountable.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>

@@ -124,7 +124,7 @@ class ClaudeAIService: ObservableObject {
 
     private func buildSystemPrompt(context: UserContext) -> String {
         """
-        You are the user's personal AI life coach inside the LevelUp app. You have access to their real data.
+        You are the user's personal AI life coach inside the Grindly app. You have access to their real data.
 
         Current user stats:
         - Weight: \(String(format: "%.1f", context.currentWeight)) lbs (goal: \(String(format: "%.0f", context.goalWeight)) lbs)

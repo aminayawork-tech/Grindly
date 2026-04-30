@@ -16,7 +16,7 @@ struct GoalsDashboardView: View {
                 .padding(.bottom, 32)
             }
             .background(Color(.systemGroupedBackground))
-            .navigationTitle("LevelUp")
+            .navigationTitle("Grindly")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {

@@ -1,4 +1,4 @@
-# LevelUp — Personal Growth Tracking App
+# Grindly — Personal Growth Tracking App
 
 A premium iOS personal growth tracking app built with SwiftUI. Your personal trainer, nutritionist, and life coach in one app.
 
@@ -67,22 +67,22 @@ Add your keys in **Settings** tab within the app, or directly in the source file
 
 ### HealthKit Setup
 1. Open project in Xcode
-2. Select the LevelUp target → Signing & Capabilities
+2. Select the Grindly target → Signing & Capabilities
 3. Add "HealthKit" capability
 4. The `Info.plist` already contains the usage descriptions
 
 ### Running the App
 ```bash
-open LevelUp.xcodeproj
+open Grindly.xcodeproj
 ```
 Build and run on a physical device or simulator (HealthKit requires device for real data).
 
 ## Architecture
 
 ```
-LevelUp/
+Grindly/
 ├── App/
-│   ├── LevelUpApp.swift          # App entry, notifications setup
+│   ├── GrindlyApp.swift          # App entry, notifications setup
 │   └── MainTabView.swift         # Tab navigation
 ├── Models/
 │   ├── Goal.swift                # Goal, Milestone, GoalCategory
