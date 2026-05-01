@@ -12,11 +12,11 @@ const COLOR_RING: Record<string, string> = {
   pink: '#DB2777', purple: '#7C3AED', indigo: '#4F46E5',
 };
 
-function progressPct(goal: Goal) {
+function progressPct(goal: Goal): number {
   if (goal.category === 'weight') {
-    const range = goal.progressValue - goal.targetValue;
-    const total = (goal.milestones[0]?.value ?? goal.progressValue) - goal.targetValue;
-    return total > 0 ? Math.min(1 - range / total, 1) : 0;
+    const start = Math.max(goal.progressValue, ...goal.milestones.map(m => m.value));
+    const total = start - goal.targetValue;
+    return total > 0 ? Math.max(0, Math.min((start - goal.progressValue) / total, 1)) : 0;
   }
   return goal.targetValue > 0 ? Math.min(goal.progressValue / goal.targetValue, 1) : 0;
 }
@@ -32,6 +32,8 @@ function statusMessage(pct: number) {
 export default function GoalsDashboard() {
   const store = useStore();
   const [showAdd, setShowAdd] = useState(false);
+  const [editGoal, setEditGoal] = useState<Goal | null>(null);
+  const [editValue, setEditValue] = useState('');
   const [form, setForm] = useState({ title: '', category: 'custom', progressValue: '', targetValue: '', unit: '', notes: '', motivationalMessage: '' });
 
   const activeGoals = store.goals.filter(g => g.isActive);
@@ -41,6 +43,23 @@ export default function GoalsDashboard() {
         return days.filter(d => h.completions.includes(d)).length / 7;
       }).reduce((a, b) => a + b, 0) / store.habits.length
     : 0;
+
+  function openEdit(goal: Goal) {
+    setEditGoal(goal);
+    setEditValue(String(goal.progressValue));
+  }
+
+  function saveEdit() {
+    if (!editGoal) return;
+    store.updateGoal({ ...editGoal, progressValue: parseFloat(editValue) || editGoal.progressValue });
+    setEditGoal(null);
+  }
+
+  function archiveGoal() {
+    if (!editGoal) return;
+    store.updateGoal({ ...editGoal, isActive: false });
+    setEditGoal(null);
+  }
 
   function addGoal() {
     const goal: Goal = {
@@ -63,18 +82,14 @@ export default function GoalsDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black text-gray-900">Grindly ⚡</h1>
           <p className="text-gray-400 text-sm font-medium mt-0.5">Your personal growth dashboard</p>
         </div>
-        <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-1.5">
-          <span>+</span> Goal
-        </button>
+        <button onClick={() => setShowAdd(true)} className="btn-primary">+ Goal</button>
       </div>
 
-      {/* Quick stats — 2×2 grid on mobile */}
       <div className="grid grid-cols-2 gap-3">
         <StatCard label="Workouts" value={`${store.weeklyWorkoutCount()}`} subtitle="this week" emoji="🔥" color="orange" />
         <StatCard label="Calories" value={`${Math.round(store.todayCalories())}`} subtitle="today" emoji="🍽️" color="green" />
@@ -82,16 +97,18 @@ export default function GoalsDashboard() {
         <StatCard label="Habits" value={`${Math.round(avgHabit * 100)}%`} subtitle="weekly" emoji="✅" color="purple" />
       </div>
 
-      {/* Goals */}
       <div>
-        <h2 className="section-title mb-4">Active Goals</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="section-title">Active Goals</h2>
+          <span className="text-xs text-gray-400">Tap to update</span>
+        </div>
         <div className="space-y-3">
           {activeGoals.map(goal => {
             const pct = progressPct(goal);
             const color = categoryColor(goal.category);
             const ringColor = COLOR_RING[color] ?? '#2563EB';
             return (
-              <div key={goal.id} className="card hover:shadow-md transition-shadow cursor-pointer">
+              <button key={goal.id} onClick={() => openEdit(goal)} className="card w-full text-left hover:shadow-md active:scale-[0.99] transition-all">
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl bg-${color}-50 flex-shrink-0`}>
                     {categoryIcon(goal.category)}
@@ -101,20 +118,18 @@ export default function GoalsDashboard() {
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-gray-900 text-base leading-tight truncate">{goal.title}</h3>
                         <p className="text-sm text-gray-400 mt-0.5">{statusMessage(pct)}</p>
+                        <p className="text-xs text-gray-400">{goal.progressValue} / {goal.targetValue} {goal.unit}</p>
                       </div>
                       <ProgressRing progress={pct} size={56} strokeWidth={5} color={ringColor} />
                     </div>
-                    {goal.motivationalMessage && (
-                      <p className="text-sm text-gray-500 italic mt-2 line-clamp-1">&ldquo;{goal.motivationalMessage}&rdquo;</p>
-                    )}
                     {goal.milestones.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-3">
+                      <div className="flex flex-wrap gap-1.5 mt-2">
                         {goal.milestones.map(m => {
                           const achieved = goal.category === 'weight'
                             ? goal.progressValue <= m.value
                             : goal.progressValue >= m.value;
                           return (
-                            <span key={m.id} className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${achieved ? `bg-${color}-100 text-${color}-700` : 'bg-gray-100 text-gray-400'}`}>
+                            <span key={m.id} className={`text-xs font-medium px-2 py-0.5 rounded-full ${achieved ? `bg-${color}-100 text-${color}-700` : 'bg-gray-100 text-gray-400'}`}>
                               {achieved ? '✓' : '○'} {m.title}
                             </span>
                           );
@@ -123,20 +138,80 @@ export default function GoalsDashboard() {
                     )}
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
+
+          {activeGoals.length === 0 && (
+            <div className="card text-center py-10">
+              <div className="text-4xl mb-2">🎯</div>
+              <p className="font-semibold text-gray-500">No active goals</p>
+              <p className="text-sm text-gray-400 mt-1">Tap + Goal to get started</p>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Update Goal Modal */}
+      {editGoal && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-2xl flex-shrink-0">{categoryIcon(editGoal.category)}</span>
+                <h2 className="text-lg font-bold truncate">{editGoal.title}</h2>
+              </div>
+              <button onClick={() => setEditGoal(null)} className="text-gray-400 text-xl leading-none ml-2">✕</button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div>
+                <label className="label mb-1 block">Current Progress ({editGoal.unit})</label>
+                <input
+                  className="input text-lg font-bold"
+                  type="number"
+                  step="0.1"
+                  value={editValue}
+                  onChange={e => setEditValue(e.target.value)}
+                  autoFocus
+                />
+                <p className="text-xs text-gray-400 mt-1">Target: {editGoal.targetValue} {editGoal.unit}</p>
+              </div>
+              {editGoal.milestones.length > 0 && (
+                <div className="space-y-1">
+                  {editGoal.milestones.map(m => {
+                    const val = parseFloat(editValue) || editGoal.progressValue;
+                    const achieved = editGoal.category === 'weight' ? val <= m.value : val >= m.value;
+                    return (
+                      <div key={m.id} className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm ${achieved ? 'bg-green-50 text-green-700' : 'bg-gray-50 text-gray-500'}`}>
+                        <span>{achieved ? '✅' : '○'}</span>
+                        <span className="font-medium flex-1">{m.title}</span>
+                        <span className="text-xs opacity-60">{m.value} {editGoal.unit}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            <div className="p-5 border-t border-gray-100 flex gap-3">
+              <button onClick={archiveGoal} className="px-4 py-3 rounded-xl border border-red-200 text-red-500 font-semibold text-sm">
+                Archive
+              </button>
+              <button onClick={() => setEditGoal(null)} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600">Cancel</button>
+              <button onClick={saveEdit} className="flex-1 btn-primary">Update</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add Goal Modal */}
       {showAdd && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-5 border-b border-gray-100">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-xl font-bold">New Goal</h2>
+              <button onClick={() => setShowAdd(false)} className="text-gray-400 text-xl leading-none">✕</button>
             </div>
-            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+            <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="label mb-1 block">Goal Title</label>
                 <input className="input" placeholder="e.g. Run a 5K" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
@@ -169,7 +244,7 @@ export default function GoalsDashboard() {
               </div>
               <div>
                 <label className="label mb-1 block">Notes</label>
-                <textarea className="input resize-none" rows={3} placeholder="Strategy, context..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
+                <textarea className="input resize-none" rows={2} placeholder="Strategy, context..." value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} />
               </div>
             </div>
             <div className="p-5 border-t border-gray-100 flex gap-3">
