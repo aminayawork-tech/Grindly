@@ -78,8 +78,8 @@ export default function FitnessPage() {
 
       <div className="grid grid-cols-3 gap-3">
         <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" emoji="🔥" color="orange" />
-        <StatCard label="Cals Burned" value={`${Math.round(totalCalories)}`} subtitle="recent" emoji="⚡" color="red" />
-        <StatCard label="Total Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" />
+        <StatCard label="Calories" value={`${Math.round(totalCalories)}`} subtitle="burned" emoji="⚡" color="red" />
+        <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" />
       </div>
 
       {/* Quick log buttons */}
