@@ -62,7 +62,7 @@ export default function HabitsPage() {
         <button onClick={() => setShowAdd(true)} className="btn-primary">+ Habit</button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <div className="grid grid-cols-3 gap-3">
         <StatCard label="Today" value={`${completedToday}/${store.habits.length}`} subtitle="done" emoji="✅" color="green" />
         <StatCard label="Weekly Rate" value={`${Math.round(avgRate * 100)}%`} subtitle="completion" emoji="📈" color="purple" />
         <StatCard label="Best Streak" value={`${bestStreak}`} subtitle="days" emoji="🔥" color="orange" />
@@ -75,7 +75,7 @@ export default function HabitsPage() {
             <div className="flex-1 font-bold text-gray-900">Today&apos;s Habits</div>
             <div className="flex gap-1.5">
               {days.map(d => (
-                <div key={d} className="w-8 text-center text-xs font-semibold text-gray-400">{sevenDayLabel(d)}</div>
+                <div key={d} className="w-7 text-center text-xs font-semibold text-gray-400">{sevenDayLabel(d)}</div>
               ))}
             </div>
           </div>
@@ -89,33 +89,33 @@ export default function HabitsPage() {
               const colorCls = habitColorClass(habit.color);
 
               return (
-                <div key={habit.id} className={`flex items-center gap-3 p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
+                <div key={habit.id} className={`flex items-center gap-2 p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
                   <button
                     onClick={() => store.toggleHabit(habit.id)}
-                    className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
+                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
                       done ? `${colorCls.bg} text-white shadow-sm` : 'bg-white border-2 border-gray-200'
                     }`}
                   >
-                    {done && <span className="text-sm font-bold">✓</span>}
+                    {done && <span className="text-xs font-bold">✓</span>}
                   </button>
 
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span>{habit.icon}</span>
-                      <span className={`font-semibold text-sm ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
-                      {streak > 0 && <span className="text-xs font-bold text-orange-500">🔥 {streak}</span>}
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-sm">{habit.icon}</span>
+                      <span className={`font-semibold text-sm truncate ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
+                      {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0">🔥{streak}</span>}
                     </div>
-                    <div className="text-xs text-gray-400 mt-0.5">{Math.round(rate * 100)}% this week</div>
+                    <div className="text-xs text-gray-400">{Math.round(rate * 100)}% this week</div>
                   </div>
 
-                  <div className="flex gap-1">
+                  <div className="flex gap-1 flex-shrink-0">
                     {days.map(d => {
                       const completed = habit.completions.includes(d);
                       const isToday = d === todayKey;
                       return (
                         <div
                           key={d}
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all ${
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
                             completed
                               ? `${colorCls.bg} text-white`
                               : isToday
