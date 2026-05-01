@@ -9,6 +9,13 @@ export interface Milestone {
   achieved: boolean;
 }
 
+export interface GoalEntry {
+  id: string;
+  date: string;
+  note: string;
+  progressValue?: number;
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -19,6 +26,7 @@ export interface Goal {
   motivationalMessage: string;
   notes: string;
   milestones: Milestone[];
+  entries?: GoalEntry[];
   targetDate?: string;
   isActive: boolean;
   createdAt: string;
