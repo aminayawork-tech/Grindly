@@ -99,6 +99,7 @@ export interface AppSettings {
   dailyCalorieGoal: number;
   startWeight: number;
   goalWeight: number;
+  weightGoalDate?: string;
   anthropicApiKey: string;
   nutritionixAppId: string;
   nutritionixAppKey: string;
