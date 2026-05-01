@@ -26,12 +26,14 @@ export interface Goal {
 
 export interface WorkoutSet {
   id: string;
+  exercise?: string;
   reps: number;
   restSeconds: number;
 }
 
 export interface WorkoutSession {
   id: string;
+  name?: string;
   type: WorkoutType;
   date: string;
   sets: WorkoutSet[];
