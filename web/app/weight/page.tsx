@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { WeightEntry } from '@/lib/types';
 import { nanoid, formatDate } from '@/lib/utils';
-import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
 
@@ -14,9 +14,11 @@ export default function WeightPage() {
   const [weightInput, setWeightInput] = useState('');
   const [notes, setNotes] = useState('');
   const [showMilestone, setShowMilestone] = useState<number | null>(null);
+  const [showDateEdit, setShowDateEdit] = useState(false);
+  const [goalDateInput, setGoalDateInput] = useState('');
 
   const trend = store.weightTrendData();
-  const { startWeight, goalWeight } = store.settings;
+  const { startWeight, goalWeight, weightGoalDate } = store.settings;
   const sortedEntries = [...store.weightEntries].sort((a, b) => a.date.localeCompare(b.date));
   const progressPct = Math.min(Math.max(trend.totalLost / (startWeight - goalWeight), 0), 1);
 
@@ -25,8 +27,8 @@ export default function WeightPage() {
     weight: e.weight,
   }));
 
-  const minY = Math.min(...sortedEntries.map(e => e.weight), goalWeight) - 2;
-  const maxY = Math.max(...sortedEntries.map(e => e.weight), startWeight) + 2;
+  const minY = sortedEntries.length ? Math.min(...sortedEntries.map(e => e.weight), goalWeight) - 2 : goalWeight - 2;
+  const maxY = sortedEntries.length ? Math.max(...sortedEntries.map(e => e.weight), startWeight) + 2 : startWeight + 2;
 
   function logWeight() {
     const w = parseFloat(weightInput);
@@ -43,6 +45,16 @@ export default function WeightPage() {
     setNotes('');
   }
 
+  function saveGoalDate() {
+    store.updateSettings({ weightGoalDate: goalDateInput });
+    setShowDateEdit(false);
+  }
+
+  function openDateEdit() {
+    setGoalDateInput(weightGoalDate ?? '');
+    setShowDateEdit(true);
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -53,13 +65,12 @@ export default function WeightPage() {
         <button onClick={() => setShowLog(true)} className="btn-primary">+ Log</button>
       </div>
 
-      {/* Milestone card */}
       {showMilestone && (
         <div className="card bg-gradient-to-r from-yellow-50 to-orange-50 border-orange-200 text-center py-6">
           <div className="text-5xl mb-2">🏆</div>
           <div className="text-2xl font-black text-gray-900">Milestone Hit!</div>
           <div className="text-gray-600 mt-1">You hit {showMilestone} lbs — {Math.round(startWeight - showMilestone)} lbs down!</div>
-          <button onClick={() => setShowMilestone(null)} className="mt-3 text-sm text-gray-400 hover:text-gray-600">Dismiss</button>
+          <button onClick={() => setShowMilestone(null)} className="mt-3 text-sm text-gray-400">Dismiss</button>
         </div>
       )}
 
@@ -84,19 +95,54 @@ export default function WeightPage() {
         <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" emoji="🎯" color="orange" />
       </div>
 
-      {/* Projection */}
-      <div className="card-sm flex items-center gap-4">
-        <div className="text-3xl">📅</div>
-        <div>
-          <div className="label">Projected Goal Date</div>
-          {trend.projected ? (
-            <>
-              <div className="font-bold text-gray-900 mt-0.5">{trend.projected.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-              <div className="text-xs text-gray-400">at your current {trend.weeklyRate.toFixed(1)} lbs/week pace</div>
-            </>
-          ) : (
-            <div className="text-gray-400 text-sm">Log more weights to project your timeline</div>
-          )}
+      {/* Goal date + projection card */}
+      <div className="card space-y-3">
+        {/* User target date */}
+        <div className="flex items-start gap-3">
+          <div className="text-2xl mt-0.5">🎯</div>
+          <div className="flex-1">
+            <div className="label mb-1">Your Goal Date</div>
+            {showDateEdit ? (
+              <div className="flex gap-2 items-center">
+                <input
+                  autoFocus
+                  className="input flex-1 text-sm"
+                  type="date"
+                  value={goalDateInput}
+                  onChange={e => setGoalDateInput(e.target.value)}
+                />
+                <button onClick={saveGoalDate} className="btn-primary px-3 py-2 text-sm">Set</button>
+                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 text-lg leading-none">✕</button>
+              </div>
+            ) : weightGoalDate ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="font-bold text-gray-900">
+                  {new Date(weightGoalDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </span>
+                <button onClick={openDateEdit} className="text-xs text-blue-500 font-semibold">Edit</button>
+              </div>
+            ) : (
+              <button onClick={openDateEdit} className="text-sm text-blue-500 font-semibold">+ Set a target date</button>
+            )}
+          </div>
+        </div>
+
+        {/* Auto-projected date */}
+        <div className="flex items-start gap-3 pt-3 border-t border-gray-100">
+          <div className="text-2xl mt-0.5">📅</div>
+          <div>
+            <div className="label mb-1">Projected at Current Pace</div>
+            {trend.projected ? (
+              <div>
+                <div className="font-semibold text-gray-800">
+                  {trend.projected.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </div>
+                <div className="text-xs text-gray-400 mt-0.5">{trend.weeklyRate.toFixed(1)} lbs/week pace</div>
+              </div>
+            ) : (
+              <div className="text-gray-400 text-sm">Log more entries to project your timeline</div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -130,7 +176,7 @@ export default function WeightPage() {
         )}
       </div>
 
-      {/* Log */}
+      {/* Weight log */}
       <div>
         <h2 className="section-title mb-3">Weight Log</h2>
         {sortedEntries.length === 0 ? (
