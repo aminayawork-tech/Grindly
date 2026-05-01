@@ -17,13 +17,13 @@ const colorMap = {
 
 export default function StatCard({ label, value, subtitle, emoji, color = 'blue' }: StatCardProps) {
   return (
-    <div className="card-sm flex-1 min-w-0">
-      <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${colorMap[color]}`}>
-        <span className="text-lg">{emoji}</span>
+    <div className="card-sm min-w-0">
+      <div className={`w-8 h-8 rounded-lg flex items-center justify-center mb-2 ${colorMap[color]}`}>
+        <span className="text-base">{emoji}</span>
       </div>
-      <div className="text-2xl font-bold text-gray-900 tabular-nums truncate">{value}</div>
-      <div className="label mt-1">{label}</div>
-      {subtitle && <div className="text-xs text-gray-400 mt-0.5">{subtitle}</div>}
+      <div className="text-xl font-bold text-gray-900 tabular-nums truncate">{value}</div>
+      <div className="label mt-0.5 truncate">{label}</div>
+      {subtitle && <div className="text-xs text-gray-400 truncate">{subtitle}</div>}
     </div>
   );
 }
