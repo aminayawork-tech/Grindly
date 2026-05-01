@@ -76,10 +76,10 @@ export default function FitnessPage() {
         <button onClick={() => setShowLog(true)} className="btn-primary">+ Log</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" emoji="🔥" color="orange" />
-        <StatCard label="Calories" value={`${Math.round(totalCalories)}`} subtitle="burned" emoji="⚡" color="red" />
-        <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" />
+      <div className="grid grid-cols-3 gap-2">
+        <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" emoji="🔥" color="orange" compact />
+        <StatCard label="Calories" value={`${Math.round(totalCalories)}`} subtitle="burned" emoji="⚡" color="red" compact />
+        <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" compact />
       </div>
 
       {/* Quick log buttons */}
