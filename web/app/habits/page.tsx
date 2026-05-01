@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Habit } from '@/lib/types';
-import { nanoid, last7Days, sevenDayLabel, habitColorClass } from '@/lib/utils';
+import { nanoid, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 
 const ICONS = ['💊', '🏋️', '🍽️', '⚖️', '📚', '💧', '🧘', '🌅', '🏃', '💪', '🥗', '😴', '🧠', '❤️'];
@@ -31,9 +31,10 @@ export default function HabitsPage() {
   const store = useStore();
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: '', icon: '⭐', color: 'orange' as typeof COLORS[number] });
-  const days = last7Days();
+  const weekDays = currentWeekDays(); // Mon–Sun of this week
 
-  const completedToday = store.habits.filter(h => h.completions.includes(new Date().toISOString().slice(0, 10))).length;
+  const todayKey = new Date().toISOString().slice(0, 10);
+  const completedToday = store.habits.filter(h => h.completions.includes(todayKey)).length;
   const avgRate = store.habits.length ? store.habits.map(h => getWeeklyRate(h)).reduce((a, b) => a + b, 0) / store.habits.length : 0;
   const bestStreak = store.habits.length ? Math.max(...store.habits.map(h => getStreak(h))) : 0;
 
@@ -62,19 +63,17 @@ export default function HabitsPage() {
         <button onClick={() => setShowAdd(true)} className="btn-primary">+ Habit</button>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <StatCard label="Today" value={`${completedToday}/${store.habits.length}`} subtitle="done" emoji="✅" color="green" />
-        <StatCard label="Weekly" value={`${Math.round(avgRate * 100)}%`} subtitle="rate" emoji="📈" color="purple" />
-        <StatCard label="Streak" value={`${bestStreak}`} subtitle="days" emoji="🔥" color="orange" />
+      <div className="grid grid-cols-3 gap-2">
+        <StatCard label="Today" value={`${completedToday}/${store.habits.length}`} subtitle="done" emoji="✅" color="green" compact />
+        <StatCard label="Weekly" value={`${Math.round(avgRate * 100)}%`} subtitle="rate" emoji="📈" color="purple" compact />
+        <StatCard label="Streak" value={`${bestStreak}`} subtitle="days" emoji="🔥" color="orange" compact />
       </div>
 
-      {/* Week header */}
       {store.habits.length > 0 && (
         <div className="card">
           <h2 className="font-bold text-gray-900 mb-3">Today&apos;s Habits</h2>
           <div className="space-y-2">
             {store.habits.map(habit => {
-              const todayKey = new Date().toISOString().slice(0, 10);
               const done = habit.completions.includes(todayKey);
               const streak = getStreak(habit);
               const rate = getWeeklyRate(habit);
@@ -82,7 +81,7 @@ export default function HabitsPage() {
 
               return (
                 <div key={habit.id} className={`p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
-                  {/* Top row: toggle + name */}
+                  {/* Top row: toggle + icon + name + streak + rate */}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => store.toggleHabit(habit.id)}
@@ -97,11 +96,12 @@ export default function HabitsPage() {
                     {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0">🔥 {streak}</span>}
                     <span className="text-xs text-gray-400 flex-shrink-0">{Math.round(rate * 100)}%</span>
                   </div>
-                  {/* Bottom row: 7-day dots */}
-                  <div className="flex gap-1.5 mt-2 ml-10">
-                    {days.map(d => {
+                  {/* Bottom row: Mon–Sun week dots */}
+                  <div className="flex gap-1 mt-2 ml-10">
+                    {weekDays.map(d => {
                       const completed = habit.completions.includes(d);
                       const isToday = d === todayKey;
+                      const isFuture = d > todayKey;
                       return (
                         <div
                           key={d}
@@ -111,6 +111,8 @@ export default function HabitsPage() {
                               ? `${colorCls.bg} text-white`
                               : isToday
                               ? 'bg-white border-2 border-gray-300 text-gray-500'
+                              : isFuture
+                              ? 'bg-gray-50 text-gray-300'
                               : 'bg-gray-100 text-gray-400'
                           }`}
                         >
