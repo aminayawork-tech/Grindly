@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { Goal } from '@/lib/types';
-import { categoryColor, categoryIcon, nanoid } from '@/lib/utils';
+import { Goal, GoalEntry } from '@/lib/types';
+import { categoryColor, categoryIcon, nanoid, formatDate } from '@/lib/utils';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
 
@@ -34,6 +34,7 @@ export default function GoalsDashboard() {
   const [showAdd, setShowAdd] = useState(false);
   const [editGoal, setEditGoal] = useState<Goal | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [editNote, setEditNote] = useState('');
   const [form, setForm] = useState({ title: '', category: 'custom', progressValue: '', targetValue: '', unit: '', notes: '', motivationalMessage: '' });
 
   const activeGoals = store.goals.filter(g => g.isActive);
@@ -47,12 +48,28 @@ export default function GoalsDashboard() {
   function openEdit(goal: Goal) {
     setEditGoal(goal);
     setEditValue(String(goal.progressValue));
+    setEditNote('');
   }
 
   function saveEdit() {
     if (!editGoal) return;
-    store.updateGoal({ ...editGoal, progressValue: parseFloat(editValue) || editGoal.progressValue });
+    const newProgress = parseFloat(editValue);
+    const hasProgressChange = !isNaN(newProgress) && newProgress !== editGoal.progressValue;
+    const hasNote = editNote.trim().length > 0;
+
+    const entry: GoalEntry | null = hasNote
+      ? { id: nanoid(), date: new Date().toISOString(), note: editNote.trim(), progressValue: hasProgressChange ? newProgress : undefined }
+      : hasProgressChange
+      ? { id: nanoid(), date: new Date().toISOString(), note: '', progressValue: newProgress }
+      : null;
+
+    store.updateGoal({
+      ...editGoal,
+      progressValue: hasProgressChange ? newProgress : editGoal.progressValue,
+      entries: entry ? [entry, ...(editGoal.entries ?? [])].slice(0, 100) : (editGoal.entries ?? []),
+    });
     setEditGoal(null);
+    setEditNote('');
   }
 
   function archiveGoal() {
@@ -72,6 +89,7 @@ export default function GoalsDashboard() {
       motivationalMessage: form.motivationalMessage,
       notes: form.notes,
       milestones: [],
+      entries: [],
       isActive: true,
       createdAt: new Date().toISOString(),
     };
@@ -100,13 +118,14 @@ export default function GoalsDashboard() {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="section-title">Active Goals</h2>
-          <span className="text-xs text-gray-400">Tap to update</span>
+          <span className="text-xs text-gray-400">Tap to log</span>
         </div>
         <div className="space-y-3">
           {activeGoals.map(goal => {
             const pct = progressPct(goal);
             const color = categoryColor(goal.category);
             const ringColor = COLOR_RING[color] ?? '#2563EB';
+            const lastEntry = goal.entries?.[0];
             return (
               <button key={goal.id} onClick={() => openEdit(goal)} className="card w-full text-left hover:shadow-md active:scale-[0.99] transition-all">
                 <div className="flex items-start gap-3">
@@ -117,8 +136,14 @@ export default function GoalsDashboard() {
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1 min-w-0">
                         <h3 className="font-bold text-gray-900 text-base leading-tight truncate">{goal.title}</h3>
-                        <p className="text-sm text-gray-400 mt-0.5">{statusMessage(pct)}</p>
-                        <p className="text-xs text-gray-400">{goal.progressValue} / {goal.targetValue} {goal.unit}</p>
+                        {lastEntry?.note ? (
+                          <p className="text-xs text-gray-400 mt-0.5 truncate">📝 {lastEntry.note}</p>
+                        ) : (
+                          <p className="text-sm text-gray-400 mt-0.5">{statusMessage(pct)}</p>
+                        )}
+                        {goal.unit && (
+                          <p className="text-xs text-gray-400">{goal.progressValue} / {goal.targetValue} {goal.unit}</p>
+                        )}
                       </div>
                       <ProgressRing progress={pct} size={56} strokeWidth={5} color={ringColor} />
                     </div>
@@ -152,7 +177,7 @@ export default function GoalsDashboard() {
         </div>
       </div>
 
-      {/* Update Goal Modal */}
+      {/* Goal Log Modal */}
       {editGoal && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
@@ -163,19 +188,43 @@ export default function GoalsDashboard() {
               </div>
               <button onClick={() => setEditGoal(null)} className="text-gray-400 text-xl leading-none ml-2">✕</button>
             </div>
-            <div className="p-5 space-y-4">
+
+            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Activity log entry */}
               <div>
-                <label className="label mb-1 block">Current Progress ({editGoal.unit})</label>
-                <input
-                  className="input text-lg font-bold"
-                  type="number"
-                  step="0.1"
-                  value={editValue}
-                  onChange={e => setEditValue(e.target.value)}
+                <label className="label mb-1 block">What did you do?</label>
+                <textarea
                   autoFocus
+                  className="input resize-none"
+                  rows={3}
+                  placeholder={
+                    editGoal.category === 'fitness' ? 'e.g. Went to jujitsu, learned armbar from guard' :
+                    editGoal.category === 'financial' ? 'e.g. Saved $200, paid off credit card' :
+                    editGoal.category === 'relationship' ? 'e.g. Had dinner with family, called mom' :
+                    editGoal.category === 'health' ? 'e.g. Took vitamins, slept 8 hours' :
+                    'e.g. What did you do today toward this goal?'
+                  }
+                  value={editNote}
+                  onChange={e => setEditNote(e.target.value)}
                 />
-                <p className="text-xs text-gray-400 mt-1">Target: {editGoal.targetValue} {editGoal.unit}</p>
               </div>
+
+              {/* Progress update — optional */}
+              {editGoal.unit && (
+                <div>
+                  <label className="label mb-1 block">Update Progress ({editGoal.unit}) — optional</label>
+                  <input
+                    className="input"
+                    type="number"
+                    step="0.1"
+                    value={editValue}
+                    onChange={e => setEditValue(e.target.value)}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Target: {editGoal.targetValue} {editGoal.unit}</p>
+                </div>
+              )}
+
+              {/* Milestones */}
               {editGoal.milestones.length > 0 && (
                 <div className="space-y-1">
                   {editGoal.milestones.map(m => {
@@ -191,13 +240,34 @@ export default function GoalsDashboard() {
                   })}
                 </div>
               )}
+
+              {/* Recent activity log */}
+              {(editGoal.entries ?? []).filter(e => e.note).length > 0 && (
+                <div>
+                  <label className="label mb-2 block">Recent Activity</label>
+                  <div className="space-y-2">
+                    {(editGoal.entries ?? []).filter(e => e.note).slice(0, 5).map(entry => (
+                      <div key={entry.id} className="flex gap-2 bg-gray-50 rounded-xl px-3 py-2.5">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-gray-800 leading-snug">{entry.note}</p>
+                          {entry.progressValue !== undefined && (
+                            <p className="text-xs text-blue-500 mt-0.5">→ {entry.progressValue} {editGoal.unit}</p>
+                          )}
+                        </div>
+                        <span className="text-xs text-gray-400 flex-shrink-0 mt-0.5">{formatDate(entry.date)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
             <div className="p-5 border-t border-gray-100 flex gap-3">
               <button onClick={archiveGoal} className="px-4 py-3 rounded-xl border border-red-200 text-red-500 font-semibold text-sm">
                 Archive
               </button>
               <button onClick={() => setEditGoal(null)} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600">Cancel</button>
-              <button onClick={saveEdit} className="flex-1 btn-primary">Update</button>
+              <button onClick={saveEdit} className="flex-1 btn-primary">Save</button>
             </div>
           </div>
         </div>
@@ -214,7 +284,7 @@ export default function GoalsDashboard() {
             <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="label mb-1 block">Goal Title</label>
-                <input className="input" placeholder="e.g. Run a 5K" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
+                <input className="input" placeholder="e.g. Train Jujitsu 3x/week" value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} />
               </div>
               <div>
                 <label className="label mb-1 block">Category</label>
@@ -235,9 +305,10 @@ export default function GoalsDashboard() {
                 </div>
                 <div>
                   <label className="label mb-1 block">Unit</label>
-                  <input className="input" placeholder="%" value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} />
+                  <input className="input" placeholder="sessions" value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} />
                 </div>
               </div>
+              <p className="text-xs text-gray-400 -mt-2">Leave Current/Target/Unit blank for journal-only goals</p>
               <div>
                 <label className="label mb-1 block">Motivational Message</label>
                 <input className="input" placeholder="What drives you?" value={form.motivationalMessage} onChange={e => setForm(f => ({ ...f, motivationalMessage: e.target.value }))} />
