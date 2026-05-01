@@ -76,7 +76,7 @@ export default function FitnessPage() {
         <button onClick={() => setShowLog(true)} className="btn-primary">+ Log</button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-1">
+      <div className="grid grid-cols-3 gap-3">
         <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" emoji="🔥" color="orange" />
         <StatCard label="Cals Burned" value={`${Math.round(totalCalories)}`} subtitle="recent" emoji="⚡" color="red" />
         <StatCard label="Total Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" />
@@ -114,13 +114,13 @@ export default function FitnessPage() {
               const t = WORKOUT_TYPES.find(x => x.id === w.type);
               const totalReps = w.sets.reduce((s, x) => s + x.reps, 0);
               return (
-                <div key={w.id} className="card-sm flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                <div key={w.id} className="card-sm flex items-center gap-3">
+                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
                     {t?.emoji ?? '⚡'}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900">{t?.label ?? 'Custom'}</div>
-                    <div className="text-sm text-gray-400 mt-0.5">
+                    <div className="font-semibold text-gray-900 text-sm">{t?.label ?? 'Custom'}</div>
+                    <div className="text-xs text-gray-400 mt-0.5 truncate">
                       {w.sets.length > 0 && `${w.sets.length} sets · ${totalReps} reps`}
                       {w.distance ? ` · ${w.distance.toFixed(2)} mi` : ''}
                       {w.pace ? ` · ${w.pace.toFixed(1)} min/mi` : ''}
@@ -142,11 +142,10 @@ export default function FitnessPage() {
       {showLog && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-6 border-b border-gray-100">
+            <div className="p-5 border-b border-gray-100">
               <h2 className="text-xl font-bold">Log Workout</h2>
             </div>
-            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
-              {/* Type picker */}
+            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
               <div>
                 <label className="label mb-2 block">Type</label>
                 <div className="flex gap-2 flex-wrap">
@@ -166,11 +165,11 @@ export default function FitnessPage() {
                 <>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="label mb-1 block">Distance (miles)</label>
+                      <label className="label mb-1 block">Distance (mi)</label>
                       <input className="input" type="number" step="0.01" placeholder="3.1" value={distance} onChange={e => setDistance(e.target.value)} />
                     </div>
                     <div>
-                      <label className="label mb-1 block">Avg Pace (min/mi)</label>
+                      <label className="label mb-1 block">Pace (min/mi)</label>
                       <input className="input" type="number" step="0.1" placeholder="9.5" value={pace} onChange={e => setPace(e.target.value)} />
                     </div>
                   </div>
@@ -213,9 +212,9 @@ export default function FitnessPage() {
                 <input className="input" placeholder="Optional notes" value={notes} onChange={e => setNotes(e.target.value)} />
               </div>
             </div>
-            <div className="p-6 border-t border-gray-100 flex gap-3">
-              <button onClick={() => setShowLog(false)} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
-              <button onClick={saveWorkout} disabled={!canSave} className="flex-1 btn-primary">Save Workout</button>
+            <div className="p-5 border-t border-gray-100 flex gap-3">
+              <button onClick={() => setShowLog(false)} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600">Cancel</button>
+              <button onClick={saveWorkout} disabled={!canSave} className="flex-1 btn-primary">Save</button>
             </div>
           </div>
         </div>
