@@ -2,65 +2,101 @@
 
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { WorkoutSession, WorkoutSet } from '@/lib/types';
+import { WorkoutSession } from '@/lib/types';
 import { nanoid, formatDuration, formatDate } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 
-const WORKOUT_TYPES = [
-  { id: 'pullUps', label: 'Pull-Ups', emoji: '🏋️' },
-  { id: 'dips', label: 'Dips', emoji: '💪' },
-  { id: 'pushUps', label: 'Push-Ups', emoji: '👐' },
-  { id: 'running', label: 'Running', emoji: '🏃' },
-  { id: 'custom', label: 'Custom', emoji: '⚡' },
-] as const;
+const CALISTHENICS_PRESETS = [
+  { label: 'Pull-Ups', emoji: '🏋️' },
+  { label: 'Dips', emoji: '💪' },
+  { label: 'Push-Ups', emoji: '👐' },
+  { label: 'Squats', emoji: '🦵' },
+  { label: 'Lunges', emoji: '🚶' },
+  { label: 'Burpees', emoji: '⚡' },
+  { label: 'Sit-Ups', emoji: '🤸' },
+  { label: 'Plank', emoji: '🧘' },
+];
+
+interface SetEntry {
+  id: string;
+  exercise: string;
+  reps: number;
+  restSeconds: number;
+}
+
+function workoutEmoji(name: string): string {
+  const n = name.toLowerCase();
+  if (n.includes('run') || n.includes('jog')) return '🏃';
+  if (n.includes('jiu') || n.includes('jujitsu') || n.includes('bjj') || n.includes('martial') || n.includes('grappl')) return '🥋';
+  if (n.includes('box')) return '🥊';
+  if (n.includes('swim')) return '🏊';
+  if (n.includes('bike') || n.includes('cycl')) return '🚴';
+  if (n.includes('yoga')) return '🧘';
+  if (n.includes('pull')) return '🏋️';
+  if (n.includes('push')) return '👐';
+  if (n.includes('dip')) return '💪';
+  return '⚡';
+}
 
 export default function FitnessPage() {
   const store = useStore();
   const [showLog, setShowLog] = useState(false);
-  const [workoutType, setWorkoutType] = useState<WorkoutSession['type']>('pullUps');
-  const [sets, setSets] = useState<WorkoutSet[]>([]);
+  const [workoutName, setWorkoutName] = useState('');
+  const [sets, setSets] = useState<SetEntry[]>([]);
+  const [activeExercise, setActiveExercise] = useState('');
   const [repsInput, setRepsInput] = useState('');
   const [restInput, setRestInput] = useState('60');
-  const [distance, setDistance] = useState('');
-  const [pace, setPace] = useState('');
+  const [durationInput, setDurationInput] = useState('');
   const [calories, setCalories] = useState('');
   const [notes, setNotes] = useState('');
-  const [startTime] = useState(Date.now());
 
-  const isRunning = workoutType === 'running';
+  function selectPreset(label: string) {
+    setActiveExercise(label);
+    setRepsInput('');
+  }
 
   function addSet() {
     const reps = parseInt(repsInput);
-    if (!reps) return;
-    setSets(s => [...s, { id: nanoid(), reps, restSeconds: parseInt(restInput) || 60 }]);
+    const exercise = activeExercise.trim();
+    if (!reps || !exercise) return;
+    setSets(s => [...s, { id: nanoid(), exercise, reps, restSeconds: parseInt(restInput) || 60 }]);
     setRepsInput('');
   }
 
   function saveWorkout() {
-    const duration = Math.round((Date.now() - startTime) / 1000);
     const session: WorkoutSession = {
       id: nanoid(),
-      type: workoutType,
+      name: workoutName.trim() || 'Workout',
+      type: 'custom',
       date: new Date().toISOString(),
-      sets,
+      sets: sets.map(s => ({ id: s.id, exercise: s.exercise, reps: s.reps, restSeconds: s.restSeconds })),
       notes,
-      duration,
+      duration: (parseInt(durationInput) || 0) * 60,
       calories: parseFloat(calories) || 0,
-      distance: parseFloat(distance) || 0,
-      pace: parseFloat(pace) || 0,
     };
     store.addWorkout(session);
+    resetForm();
+  }
+
+  function resetForm() {
     setShowLog(false);
+    setWorkoutName('');
     setSets([]);
+    setActiveExercise('');
     setRepsInput('');
     setRestInput('60');
-    setDistance('');
-    setPace('');
+    setDurationInput('');
     setCalories('');
     setNotes('');
   }
 
-  const canSave = isRunning ? !!(parseFloat(distance) || parseFloat(calories)) : sets.length > 0;
+  function getLabel(w: WorkoutSession): string {
+    if (w.name) return w.name;
+    const legacyMap: Record<string, string> = {
+      pullUps: 'Pull-Ups', dips: 'Dips', pushUps: 'Push-Ups', running: 'Running', custom: 'Workout',
+    };
+    return legacyMap[w.type] ?? 'Workout';
+  }
 
   const weeklyWorkouts = store.weeklyWorkoutCount();
   const totalCalories = store.workouts.slice(0, 7).reduce((s, w) => s + w.calories, 0);
@@ -82,24 +118,6 @@ export default function FitnessPage() {
         <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" compact />
       </div>
 
-      {/* Quick log buttons */}
-      <div>
-        <h2 className="section-title mb-3">Quick Log</h2>
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {WORKOUT_TYPES.map(t => (
-            <button
-              key={t.id}
-              onClick={() => { setWorkoutType(t.id as WorkoutSession['type']); setShowLog(true); }}
-              className="card-sm flex-shrink-0 flex flex-col items-center gap-2 w-20 hover:shadow-md transition-all active:scale-95"
-            >
-              <span className="text-3xl">{t.emoji}</span>
-              <span className="text-xs font-semibold text-gray-700 text-center leading-tight">{t.label}</span>
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Recent workouts */}
       <div>
         <h2 className="section-title mb-3">Recent Workouts</h2>
         {store.workouts.length === 0 ? (
@@ -111,23 +129,22 @@ export default function FitnessPage() {
         ) : (
           <div className="space-y-3">
             {store.workouts.slice(0, 15).map(w => {
-              const t = WORKOUT_TYPES.find(x => x.id === w.type);
-              const totalReps = w.sets.reduce((s, x) => s + x.reps, 0);
+              const label = getLabel(w);
+              const repCount = w.sets.reduce((s, x) => s + x.reps, 0);
               return (
                 <div key={w.id} className="card-sm flex items-center gap-3">
                   <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
-                    {t?.emoji ?? '⚡'}
+                    {workoutEmoji(label)}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm">{t?.label ?? 'Custom'}</div>
+                    <div className="font-semibold text-gray-900 text-sm">{label}</div>
                     <div className="text-xs text-gray-400 mt-0.5 truncate">
-                      {w.sets.length > 0 && `${w.sets.length} sets · ${totalReps} reps`}
+                      {w.sets.length > 0 ? `${w.sets.length} sets · ${repCount} reps` : ''}
                       {w.distance ? ` · ${w.distance.toFixed(2)} mi` : ''}
-                      {w.pace ? ` · ${w.pace.toFixed(1)} min/mi` : ''}
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
-                    <div className="text-sm font-semibold text-gray-700">{formatDuration(w.duration)}</div>
+                    {w.duration > 0 && <div className="text-sm font-semibold text-gray-700">{formatDuration(w.duration)}</div>}
                     <div className="text-xs text-gray-400">{formatDate(w.date)}</div>
                     {w.calories > 0 && <div className="text-xs text-orange-500 font-medium">{Math.round(w.calories)} kcal</div>}
                   </div>
@@ -138,74 +155,93 @@ export default function FitnessPage() {
         )}
       </div>
 
-      {/* Log Modal */}
       {showLog && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-5 border-b border-gray-100">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
               <h2 className="text-xl font-bold">Log Workout</h2>
+              <button onClick={resetForm} className="text-gray-400 text-xl leading-none">✕</button>
             </div>
             <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
+
+              {/* Free-text workout name */}
               <div>
-                <label className="label mb-2 block">Type</label>
-                <div className="flex gap-2 flex-wrap">
-                  {WORKOUT_TYPES.map(t => (
+                <label className="label mb-1 block">Workout Name</label>
+                <input
+                  autoFocus
+                  className="input"
+                  placeholder="e.g. Jujitsu, Morning Run, Calisthenics"
+                  value={workoutName}
+                  onChange={e => setWorkoutName(e.target.value)}
+                />
+              </div>
+
+              {/* Calisthenics sets with presets */}
+              <div>
+                <label className="label mb-2 block">Calisthenics Sets (optional)</label>
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {CALISTHENICS_PRESETS.map(p => (
                     <button
-                      key={t.id}
-                      onClick={() => setWorkoutType(t.id as WorkoutSession['type'])}
-                      className={`px-3 py-2 rounded-xl text-sm font-semibold border transition-all ${workoutType === t.id ? 'bg-blue-600 text-white border-blue-600' : 'border-gray-200 text-gray-600 hover:border-blue-300'}`}
+                      key={p.label}
+                      onClick={() => selectPreset(p.label)}
+                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                        activeExercise === p.label
+                          ? 'bg-blue-600 text-white border-blue-600'
+                          : 'border-gray-200 text-gray-600 hover:border-blue-300'
+                      }`}
                     >
-                      {t.emoji} {t.label}
+                      {p.emoji} {p.label}
                     </button>
                   ))}
                 </div>
+                <div className="flex gap-2">
+                  <input
+                    className="input flex-1"
+                    placeholder="Exercise name"
+                    value={activeExercise}
+                    onChange={e => setActiveExercise(e.target.value)}
+                  />
+                  <input
+                    className="input w-20"
+                    type="number"
+                    placeholder="Reps"
+                    value={repsInput}
+                    onChange={e => setRepsInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && addSet()}
+                  />
+                  <input
+                    className="input w-20"
+                    type="number"
+                    placeholder="Rest s"
+                    value={restInput}
+                    onChange={e => setRestInput(e.target.value)}
+                  />
+                  <button onClick={addSet} disabled={!repsInput || !activeExercise} className="btn-primary px-3">+</button>
+                </div>
+                {sets.length > 0 && (
+                  <div className="space-y-1.5 mt-3">
+                    {sets.map((s, i) => (
+                      <div key={s.id} className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
+                        <span className="text-xs text-gray-400 w-5 flex-shrink-0">#{i + 1}</span>
+                        <span className="text-sm font-semibold text-gray-800 flex-1 truncate">{s.exercise}</span>
+                        <span className="text-xs text-gray-500 flex-shrink-0">{s.reps} reps · {s.restSeconds}s</span>
+                        <button onClick={() => setSets(prev => prev.filter(x => x.id !== s.id))} className="text-red-400 text-sm flex-shrink-0">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
-              {isRunning ? (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="label mb-1 block">Distance (mi)</label>
-                      <input className="input" type="number" step="0.01" placeholder="3.1" value={distance} onChange={e => setDistance(e.target.value)} />
-                    </div>
-                    <div>
-                      <label className="label mb-1 block">Pace (min/mi)</label>
-                      <input className="input" type="number" step="0.1" placeholder="9.5" value={pace} onChange={e => setPace(e.target.value)} />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="label mb-1 block">Calories Burned</label>
-                    <input className="input" type="number" placeholder="320" value={calories} onChange={e => setCalories(e.target.value)} />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div>
-                    <label className="label mb-2 block">Sets</label>
-                    <div className="flex gap-2 mb-3">
-                      <input className="input" type="number" placeholder="Reps" value={repsInput} onChange={e => setRepsInput(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && addSet()} />
-                      <input className="input w-24" type="number" placeholder="Rest (s)" value={restInput} onChange={e => setRestInput(e.target.value)} />
-                      <button onClick={addSet} disabled={!repsInput} className="btn-primary px-4">+</button>
-                    </div>
-                    {sets.length > 0 && (
-                      <div className="space-y-2">
-                        {sets.map((s, i) => (
-                          <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5">
-                            <span className="font-semibold text-sm text-gray-700">Set {i + 1}</span>
-                            <span className="text-sm text-gray-500">{s.reps} reps · {s.restSeconds}s rest</span>
-                            <button onClick={() => setSets(prev => prev.filter(x => x.id !== s.id))} className="text-red-400 hover:text-red-600 text-sm">✕</button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label className="label mb-1 block">Calories Burned (optional)</label>
-                    <input className="input" type="number" placeholder="e.g. 150" value={calories} onChange={e => setCalories(e.target.value)} />
-                  </div>
-                </>
-              )}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="label mb-1 block">Duration (min)</label>
+                  <input className="input" type="number" placeholder="45" value={durationInput} onChange={e => setDurationInput(e.target.value)} />
+                </div>
+                <div>
+                  <label className="label mb-1 block">Calories</label>
+                  <input className="input" type="number" placeholder="300" value={calories} onChange={e => setCalories(e.target.value)} />
+                </div>
+              </div>
 
               <div>
                 <label className="label mb-1 block">Notes</label>
@@ -213,8 +249,8 @@ export default function FitnessPage() {
               </div>
             </div>
             <div className="p-5 border-t border-gray-100 flex gap-3">
-              <button onClick={() => setShowLog(false)} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600">Cancel</button>
-              <button onClick={saveWorkout} disabled={!canSave} className="flex-1 btn-primary">Save</button>
+              <button onClick={resetForm} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600">Cancel</button>
+              <button onClick={saveWorkout} disabled={!workoutName.trim()} className="flex-1 btn-primary">Save</button>
             </div>
           </div>
         </div>
