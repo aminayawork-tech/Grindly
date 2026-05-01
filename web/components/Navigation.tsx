@@ -9,8 +9,8 @@ const navItems = [
   { href: '/calories', label: 'Calories', emoji: '🍽️' },
   { href: '/weight', label: 'Weight', emoji: '⚖️' },
   { href: '/habits', label: 'Habits', emoji: '✅' },
-  { href: '/coach', label: 'AI Coach', emoji: '🤖' },
-  { href: '/report', label: 'Weekly Report', emoji: '📊' },
+  { href: '/coach', label: 'AI', emoji: '🤖' },
+  { href: '/report', label: 'Report', emoji: '📊' },
   { href: '/settings', label: 'Settings', emoji: '⚙️' },
 ];
 
@@ -59,23 +59,28 @@ export default function Navigation() {
         </div>
       </aside>
 
-      {/* Mobile bottom bar */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40 flex">
-        {navItems.slice(0, 6).map(item => {
-          const active = pathname === item.href;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 text-xs font-semibold transition-colors ${
-                active ? 'text-blue-600' : 'text-gray-400'
-              }`}
-            >
-              <span className="text-lg">{item.emoji}</span>
-              <span className="text-[10px]">{item.label.split(' ')[0]}</span>
-            </Link>
-          );
-        })}
+      {/* Mobile bottom bar — scrollable, all 8 items */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40 safe-area-bottom">
+        <div className="flex overflow-x-auto scrollbar-none">
+          {navItems.map(item => {
+            const active = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex-shrink-0 flex flex-col items-center justify-center py-2 px-3 gap-0.5 min-w-[64px] transition-colors ${
+                  active ? 'text-blue-600' : 'text-gray-400'
+                }`}
+              >
+                <span className="text-xl">{item.emoji}</span>
+                <span className={`text-[10px] font-semibold whitespace-nowrap ${active ? 'text-blue-600' : 'text-gray-400'}`}>
+                  {item.label}
+                </span>
+                {active && <div className="absolute bottom-0 w-8 h-0.5 bg-blue-600 rounded-full" />}
+              </Link>
+            );
+          })}
+        </div>
       </nav>
     </>
   );
