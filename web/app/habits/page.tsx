@@ -64,23 +64,15 @@ export default function HabitsPage() {
 
       <div className="grid grid-cols-3 gap-3">
         <StatCard label="Today" value={`${completedToday}/${store.habits.length}`} subtitle="done" emoji="✅" color="green" />
-        <StatCard label="Weekly Rate" value={`${Math.round(avgRate * 100)}%`} subtitle="completion" emoji="📈" color="purple" />
-        <StatCard label="Best Streak" value={`${bestStreak}`} subtitle="days" emoji="🔥" color="orange" />
+        <StatCard label="Weekly" value={`${Math.round(avgRate * 100)}%`} subtitle="rate" emoji="📈" color="purple" />
+        <StatCard label="Streak" value={`${bestStreak}`} subtitle="days" emoji="🔥" color="orange" />
       </div>
 
       {/* Week header */}
       {store.habits.length > 0 && (
         <div className="card">
-          <div className="flex items-center mb-3">
-            <div className="flex-1 font-bold text-gray-900">Today&apos;s Habits</div>
-            <div className="flex gap-1.5">
-              {days.map(d => (
-                <div key={d} className="w-7 text-center text-xs font-semibold text-gray-400">{sevenDayLabel(d)}</div>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
+          <h2 className="font-bold text-gray-900 mb-3">Today&apos;s Habits</h2>
+          <div className="space-y-2">
             {store.habits.map(habit => {
               const todayKey = new Date().toISOString().slice(0, 10);
               const done = habit.completions.includes(todayKey);
@@ -89,41 +81,40 @@ export default function HabitsPage() {
               const colorCls = habitColorClass(habit.color);
 
               return (
-                <div key={habit.id} className={`flex items-center gap-2 p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
-                  <button
-                    onClick={() => store.toggleHabit(habit.id)}
-                    className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
-                      done ? `${colorCls.bg} text-white shadow-sm` : 'bg-white border-2 border-gray-200'
-                    }`}
-                  >
-                    {done && <span className="text-xs font-bold">✓</span>}
-                  </button>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-sm">{habit.icon}</span>
-                      <span className={`font-semibold text-sm truncate ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
-                      {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0">🔥{streak}</span>}
-                    </div>
-                    <div className="text-xs text-gray-400">{Math.round(rate * 100)}% this week</div>
+                <div key={habit.id} className={`p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
+                  {/* Top row: toggle + name */}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => store.toggleHabit(habit.id)}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
+                        done ? `${colorCls.bg} text-white shadow-sm` : 'bg-white border-2 border-gray-200'
+                      }`}
+                    >
+                      {done && <span className="text-xs font-bold">✓</span>}
+                    </button>
+                    <span className="text-base">{habit.icon}</span>
+                    <span className={`font-semibold text-sm flex-1 truncate ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
+                    {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0">🔥 {streak}</span>}
+                    <span className="text-xs text-gray-400 flex-shrink-0">{Math.round(rate * 100)}%</span>
                   </div>
-
-                  <div className="flex gap-1 flex-shrink-0">
+                  {/* Bottom row: 7-day dots */}
+                  <div className="flex gap-1.5 mt-2 ml-10">
                     {days.map(d => {
                       const completed = habit.completions.includes(d);
                       const isToday = d === todayKey;
                       return (
                         <div
                           key={d}
-                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
+                          title={d}
+                          className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
                             completed
                               ? `${colorCls.bg} text-white`
                               : isToday
-                              ? 'bg-white border-2 border-gray-200'
-                              : 'bg-gray-100'
+                              ? 'bg-white border-2 border-gray-300 text-gray-500'
+                              : 'bg-gray-100 text-gray-400'
                           }`}
                         >
-                          {completed && '✓'}
+                          {completed ? '✓' : sevenDayLabel(d)}
                         </div>
                       );
                     })}
