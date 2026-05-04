@@ -119,11 +119,11 @@ export default function GoalsDashboard() {
         </button>
       </div>
 
-      <div className="flex gap-3 overflow-x-auto pb-1">
-        <StatCard label="Workouts" value={`${store.weeklyWorkoutCount()}`} subtitle="this week" emoji="🔥" color="orange" />
-        <StatCard label="Calories" value={`${Math.round(store.todayCalories())}`} subtitle="today" emoji="🍽️" color="green" />
-        <StatCard label="Weight" value={`${store.weightTrendData().current.toFixed(1)}`} subtitle="lbs" emoji="⚖️" color="blue" />
-        <StatCard label="Habits" value={`${Math.round(avgHabit * 100)}%`} subtitle="weekly" emoji="✅" color="purple" />
+      <div className="grid grid-cols-2 gap-2">
+        <StatCard label="Workouts" value={`${store.weeklyWorkoutCount()}`} subtitle="this week" emoji="🔥" color="orange" compact />
+        <StatCard label="Calories" value={`${Math.round(store.todayCalories())}`} subtitle="today" emoji="🍽️" color="green" compact />
+        <StatCard label="Weight" value={`${store.weightTrendData().current.toFixed(1)} lbs`} subtitle="current" emoji="⚖️" color="blue" compact />
+        <StatCard label="Habits" value={`${Math.round(avgHabit * 100)}%`} subtitle="weekly" emoji="✅" color="purple" compact />
       </div>
 
       <div>
@@ -142,11 +142,11 @@ export default function GoalsDashboard() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <h3 className="font-bold text-gray-900 text-lg leading-tight">{goal.title}</h3>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-gray-900 text-lg leading-tight truncate">{goal.title}</h3>
                         <p className="text-sm text-gray-400 mt-0.5">{statusMessage(pct)}</p>
                       </div>
-                      <ProgressRing progress={pct} size={64} strokeWidth={5} color={ringColor} />
+                      <ProgressRing progress={pct} size={56} strokeWidth={5} color={ringColor} />
                     </div>
                     {lastEntry?.note && (
                       <p className="text-xs text-gray-400 mt-2 italic line-clamp-1">📝 {lastEntry.note}</p>

@@ -74,9 +74,9 @@ export default function HabitsPage() {
         <div className="card">
           <div className="flex items-center mb-3">
             <div className="flex-1 font-bold text-gray-900">Today&apos;s Habits</div>
-            <div className="flex gap-0.5">
+            <div className="flex gap-px">
               {weekDays.map(d => (
-                <div key={d} className="w-6 text-center text-xs font-semibold text-gray-400">{sevenDayLabel(d)}</div>
+                <div key={d} className="w-5 text-center text-xs font-semibold text-gray-400">{sevenDayLabel(d)}</div>
               ))}
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function HabitsPage() {
                     </div>
 
                     {!confirming && (
-                      <div className="flex gap-0.5 flex-shrink-0">
+                      <div className="flex gap-px flex-shrink-0">
                         {weekDays.map(d => {
                           const completed = habit.completions.includes(d);
                           const isToday = d === todayStr;
@@ -119,17 +119,17 @@ export default function HabitsPage() {
                           return (
                             <div
                               key={d}
-                              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs transition-all ${
+                              className={`w-5 h-5 rounded-full flex items-center justify-center transition-all ${
                                 completed
                                   ? `${colorCls.bg} text-white`
                                   : isFuture
-                                  ? 'bg-gray-50 text-gray-200'
+                                  ? 'bg-gray-50'
                                   : isToday
-                                  ? 'bg-white border-2 border-gray-200'
+                                  ? 'bg-white border-2 border-gray-300'
                                   : 'bg-gray-100'
                               }`}
                             >
-                              {completed && '✓'}
+                              {completed && <span className="text-[9px] font-bold text-white">✓</span>}
                             </div>
                           );
                         })}
