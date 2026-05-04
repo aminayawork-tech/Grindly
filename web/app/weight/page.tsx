@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { WeightEntry } from '@/lib/types';
-import { nanoid, formatDate } from '@/lib/utils';
+import { nanoid, formatDate, todayKey } from '@/lib/utils';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
@@ -34,7 +34,7 @@ export default function WeightPage() {
     const w = parseFloat(weightInput);
     if (!w) return;
     const prevWeight = trend.current;
-    const entry: WeightEntry = { id: nanoid(), weight: w, date: new Date().toISOString().slice(0, 10), notes };
+    const entry: WeightEntry = { id: nanoid(), weight: w, date: todayKey(), notes };
     store.addWeightEntry(entry);
     const milestones = Array.from({ length: Math.ceil((startWeight - goalWeight) / 5) }, (_, i) => startWeight - (i + 1) * 5);
     for (const m of milestones) {

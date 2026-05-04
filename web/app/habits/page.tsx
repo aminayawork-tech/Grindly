@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Habit } from '@/lib/types';
-import { nanoid, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
+import { nanoid, todayKey, dateKey, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 
 const ICONS = ['💊', '🏋️', '🍽️', '⚖️', '📚', '💧', '🧘', '🌅', '🏃', '💪', '🥗', '😴', '🧠', '❤️'];
@@ -15,7 +15,7 @@ function getStreak(habit: Habit): number {
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
+    const key = dateKey(d);
     if (habit.completions.includes(key)) streak++;
     else break;
   }
@@ -33,7 +33,7 @@ export default function HabitsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', icon: '⭐', color: 'orange' as typeof COLORS[number] });
   const weekDays = currentWeekDays();
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = todayKey();
 
   const completedToday = store.habits.filter(h => h.completions.includes(todayStr)).length;
   const avgRate = store.habits.length ? store.habits.map(h => getWeeklyRate(h)).reduce((a, b) => a + b, 0) / store.habits.length : 0;

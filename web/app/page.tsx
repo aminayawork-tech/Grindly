@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Goal, GoalEntry } from '@/lib/types';
-import { categoryColor, categoryIcon, nanoid, formatDate } from '@/lib/utils';
+import { categoryColor, categoryIcon, nanoid, formatDate, dateKey } from '@/lib/utils';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
 
@@ -50,7 +50,7 @@ export default function GoalsDashboard() {
   const activeGoals = store.goals.filter(g => g.isActive);
   const avgHabit = store.habits.length
     ? store.habits.map(h => {
-        const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return d.toISOString().slice(0, 10); });
+        const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(); d.setDate(d.getDate() - i); return dateKey(d); });
         return days.filter(d => h.completions.includes(d)).length / 7;
       }).reduce((a, b) => a + b, 0) / store.habits.length
     : 0;
