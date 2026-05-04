@@ -71,32 +71,30 @@ export default function ReportPage() {
         <p className="text-gray-400 text-sm font-medium mt-0.5">{weekRange}</p>
       </div>
 
-      {/* Score card */}
       <div className="card bg-gradient-to-br from-blue-50 to-purple-50 border-0 text-center py-8">
         <div className="text-5xl mb-2">{scoreLabel.split(' ')[0]}</div>
         <div className="text-2xl font-black text-gray-900">{scoreLabel.split(' ').slice(1).join(' ')}</div>
-        <div className="text-gray-500 mt-2">{scoreSubtitle}</div>
+        <div className="text-gray-500 mt-2 text-sm px-4">{scoreSubtitle}</div>
         <div className="mt-4 inline-flex items-center gap-2 bg-white/70 backdrop-blur-sm px-4 py-2 rounded-full">
           <span className="text-sm font-semibold text-gray-600">Week score:</span>
           <span className="text-lg font-black text-blue-600">{score}/100</span>
         </div>
       </div>
 
-      {/* Stats grid */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard label="Workouts" value={`${weekWorkouts}`} subtitle="sessions" emoji="🏋️" color="orange" />
-        <StatCard label="Avg Calories" value={`${Math.round(avgCals)}`} subtitle="kcal/day" emoji="🍽️" color="green" />
+      <div className="grid grid-cols-2 gap-2">
+        <StatCard label="Workouts" value={`${weekWorkouts}`} subtitle="sessions" emoji="🏋️" color="orange" compact />
+        <StatCard label="Avg Calories" value={`${Math.round(avgCals)}`} subtitle="kcal/day" emoji="🍽️" color="green" compact />
         <StatCard
           label="Weight Change"
           value={`${weightChange >= 0 ? '+' : ''}${weightChange.toFixed(1)} lbs`}
           subtitle={weightChange < 0 ? 'Great progress!' : 'Watch the trend'}
           emoji="⚖️"
           color={weightChange <= 0 ? 'blue' : 'orange'}
+          compact
         />
-        <StatCard label="Habits" value={`${Math.round(habitRate * 100)}%`} subtitle={`${habitsHit}/${habitsTotal} done`} emoji="✅" color={habitRate >= 0.8 ? 'green' : habitRate >= 0.5 ? 'orange' : 'red'} />
+        <StatCard label="Habits" value={`${Math.round(habitRate * 100)}%`} subtitle={`${habitsHit}/${habitsTotal} done`} emoji="✅" color={habitRate >= 0.8 ? 'green' : habitRate >= 0.5 ? 'orange' : 'red'} compact />
       </div>
 
-      {/* Habit breakdown */}
       {store.habits.length > 0 && (
         <div className="card">
           <h2 className="section-title mb-4">Habit Breakdown</h2>
@@ -111,10 +109,10 @@ export default function ReportPage() {
                     <div className="text-sm font-semibold text-gray-800 truncate">{habit.name}</div>
                     <div className="text-xs text-gray-400">{weekDone}/7 days</div>
                   </div>
-                  <div className="flex gap-1">
+                  <div className="flex gap-0.5">
                     {days.map(d => (
                       <div key={d} title={d}
-                        className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${habit.completions.includes(d) ? `${colorCls.bg} text-white` : 'bg-gray-100'}`}>
+                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${habit.completions.includes(d) ? `${colorCls.bg} text-white` : 'bg-gray-100 text-gray-300'}`}>
                         {habit.completions.includes(d) ? '✓' : sevenDayLabel(d)}
                       </div>
                     ))}
@@ -126,7 +124,6 @@ export default function ReportPage() {
         </div>
       )}
 
-      {/* Coach's take */}
       <div className="card">
         <h2 className="section-title mb-4">Coach&apos;s Weekly Take</h2>
         {coachMessage ? (

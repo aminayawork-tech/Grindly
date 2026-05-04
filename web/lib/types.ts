@@ -26,10 +26,10 @@ export interface Goal {
   motivationalMessage: string;
   notes: string;
   milestones: Milestone[];
-  entries?: GoalEntry[];
   targetDate?: string;
   isActive: boolean;
   createdAt: string;
+  entries?: GoalEntry[];
 }
 
 export interface WorkoutSet {
@@ -41,8 +41,8 @@ export interface WorkoutSet {
 
 export interface WorkoutSession {
   id: string;
-  name?: string;
   type: WorkoutType;
+  name?: string;
   date: string;
   sets: WorkoutSet[];
   notes: string;

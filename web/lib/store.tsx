@@ -181,6 +181,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return { current, weeklyRate, totalLost, remaining, projected };
   }, [state.weightEntries, state.settings]);
 
+  // suppress unused warning
+  void persist;
+  void dateKey;
+
   return (
     <StoreContext.Provider value={{
       ...state,

@@ -18,7 +18,7 @@ const colorMap = {
 
 export default function StatCard({ label, value, subtitle, emoji, color = 'blue', compact }: StatCardProps) {
   return (
-    <div className={`min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 ${compact ? 'p-3' : 'p-4'}`}>
+    <div className={`min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 ${compact ? 'p-3' : 'p-4'} flex-1`}>
       <div className={`${compact ? 'w-7 h-7' : 'w-8 h-8'} rounded-lg flex items-center justify-center mb-1.5 ${colorMap[color]}`}>
         <span className={compact ? 'text-sm' : 'text-base'}>{emoji}</span>
       </div>

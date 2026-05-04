@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Habit } from '@/lib/types';
-import { nanoid, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
+import { nanoid, todayKey, dateKey, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 
 const ICONS = ['💊', '🏋️', '🍽️', '⚖️', '📚', '💧', '🧘', '🌅', '🏃', '💪', '🥗', '😴', '🧠', '❤️'];
@@ -15,7 +15,7 @@ function getStreak(habit: Habit): number {
   for (let i = 0; i < 365; i++) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
-    const key = d.toISOString().slice(0, 10);
+    const key = dateKey(d);
     if (habit.completions.includes(key)) streak++;
     else break;
   }
@@ -33,9 +33,9 @@ export default function HabitsPage() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [form, setForm] = useState({ name: '', icon: '⭐', color: 'orange' as typeof COLORS[number] });
   const weekDays = currentWeekDays();
+  const todayStr = todayKey();
 
-  const todayKey = new Date().toISOString().slice(0, 10);
-  const completedToday = store.habits.filter(h => h.completions.includes(todayKey)).length;
+  const completedToday = store.habits.filter(h => h.completions.includes(todayStr)).length;
   const avgRate = store.habits.length ? store.habits.map(h => getWeeklyRate(h)).reduce((a, b) => a + b, 0) / store.habits.length : 0;
   const bestStreak = store.habits.length ? Math.max(...store.habits.map(h => getStreak(h))) : 0;
 
@@ -72,31 +72,70 @@ export default function HabitsPage() {
 
       {store.habits.length > 0 && (
         <div className="card">
-          <h2 className="font-bold text-gray-900 mb-3">Today&apos;s Habits</h2>
-          <div className="space-y-2">
+          <div className="flex items-center mb-3">
+            <div className="flex-1 font-bold text-gray-900">Today&apos;s Habits</div>
+            <div className="flex gap-1">
+              {weekDays.map(d => (
+                <div key={d} className="w-8 text-center text-xs font-semibold text-gray-400">{sevenDayLabel(d)}</div>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
             {store.habits.map(habit => {
-              const done = habit.completions.includes(todayKey);
+              const done = habit.completions.includes(todayStr);
               const streak = getStreak(habit);
               const rate = getWeeklyRate(habit);
               const colorCls = habitColorClass(habit.color);
               const confirming = deleteConfirm === habit.id;
 
               return (
-                <div key={habit.id} className={`p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
-                  {/* Top row */}
-                  <div className="flex items-center gap-2">
+                <div key={habit.id}>
+                  <div className={`flex items-center gap-3 p-3 rounded-xl transition-all ${done ? `bg-${habit.color}-50 border border-${habit.color}-100` : 'bg-gray-50'}`}>
                     <button
                       onClick={() => store.toggleHabit(habit.id)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
+                      className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 transition-all active:scale-90 ${
                         done ? `${colorCls.bg} text-white shadow-sm` : 'bg-white border-2 border-gray-200'
                       }`}
                     >
-                      {done && <span className="text-xs font-bold">✓</span>}
+                      {done && <span className="text-sm font-bold">✓</span>}
                     </button>
-                    <span className="text-base">{habit.icon}</span>
-                    <span className={`font-semibold text-sm flex-1 truncate ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
-                    {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0">🔥 {streak}</span>}
-                    <span className="text-xs text-gray-400 flex-shrink-0">{Math.round(rate * 100)}%</span>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span>{habit.icon}</span>
+                        <span className={`font-semibold text-sm ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
+                        {streak > 0 && <span className="text-xs font-bold text-orange-500">🔥 {streak}</span>}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-0.5">{Math.round(rate * 100)}% this week</div>
+                    </div>
+
+                    {!confirming && (
+                      <div className="flex gap-1">
+                        {weekDays.map(d => {
+                          const completed = habit.completions.includes(d);
+                          const isToday = d === todayStr;
+                          const isFuture = d > todayStr;
+                          return (
+                            <div
+                              key={d}
+                              className={`w-8 h-8 rounded-full flex items-center justify-center text-xs transition-all ${
+                                completed
+                                  ? `${colorCls.bg} text-white`
+                                  : isFuture
+                                  ? 'bg-gray-50 text-gray-200'
+                                  : isToday
+                                  ? 'bg-white border-2 border-gray-200'
+                                  : 'bg-gray-100'
+                              }`}
+                            >
+                              {completed && '✓'}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
                     <button
                       onClick={() => setDeleteConfirm(confirming ? null : habit.id)}
                       className="text-gray-300 hover:text-red-400 flex-shrink-0 text-base leading-none transition-colors ml-1"
@@ -105,42 +144,13 @@ export default function HabitsPage() {
                     </button>
                   </div>
 
-                  {/* Delete confirmation */}
                   {confirming && (
-                    <div className="flex items-center justify-between mt-2 ml-10 bg-red-50 rounded-lg px-3 py-2">
+                    <div className="flex items-center justify-between mt-1 ml-12 bg-red-50 rounded-lg px-3 py-2">
                       <span className="text-xs text-red-600 font-medium">Remove this habit?</span>
                       <div className="flex gap-2">
                         <button onClick={() => setDeleteConfirm(null)} className="text-xs text-gray-500 font-semibold px-2 py-1 rounded-lg hover:bg-gray-100">Cancel</button>
                         <button onClick={() => { store.removeHabit(habit.id); setDeleteConfirm(null); }} className="text-xs text-white font-semibold px-2 py-1 rounded-lg bg-red-500">Remove</button>
                       </div>
-                    </div>
-                  )}
-
-                  {/* Bottom row: Mon–Sun week dots */}
-                  {!confirming && (
-                    <div className="flex gap-1 mt-2 ml-10">
-                      {weekDays.map(d => {
-                        const completed = habit.completions.includes(d);
-                        const isToday = d === todayKey;
-                        const isFuture = d > todayKey;
-                        return (
-                          <div
-                            key={d}
-                            title={d}
-                            className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold transition-all ${
-                              completed
-                                ? `${colorCls.bg} text-white`
-                                : isToday
-                                ? 'bg-white border-2 border-gray-300 text-gray-500'
-                                : isFuture
-                                ? 'bg-gray-50 text-gray-300'
-                                : 'bg-gray-100 text-gray-400'
-                            }`}
-                          >
-                            {completed ? '✓' : sevenDayLabel(d)}
-                          </div>
-                        );
-                      })}
                     </div>
                   )}
                 </div>

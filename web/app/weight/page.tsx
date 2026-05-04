@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { WeightEntry } from '@/lib/types';
-import { nanoid, formatDate } from '@/lib/utils';
-import { XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { nanoid, formatDate, todayKey } from '@/lib/utils';
+import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
 
@@ -27,14 +27,14 @@ export default function WeightPage() {
     weight: e.weight,
   }));
 
-  const minY = sortedEntries.length ? Math.min(...sortedEntries.map(e => e.weight), goalWeight) - 2 : goalWeight - 2;
-  const maxY = sortedEntries.length ? Math.max(...sortedEntries.map(e => e.weight), startWeight) + 2 : startWeight + 2;
+  const minY = Math.min(...sortedEntries.map(e => e.weight), goalWeight) - 2;
+  const maxY = Math.max(...sortedEntries.map(e => e.weight), startWeight) + 2;
 
   function logWeight() {
     const w = parseFloat(weightInput);
     if (!w) return;
     const prevWeight = trend.current;
-    const entry: WeightEntry = { id: nanoid(), weight: w, date: new Date().toISOString().slice(0, 10), notes };
+    const entry: WeightEntry = { id: nanoid(), weight: w, date: todayKey(), notes };
     store.addWeightEntry(entry);
     const milestones = Array.from({ length: Math.ceil((startWeight - goalWeight) / 5) }, (_, i) => startWeight - (i + 1) * 5);
     for (const m of milestones) {
@@ -48,11 +48,6 @@ export default function WeightPage() {
   function saveGoalDate() {
     store.updateSettings({ weightGoalDate: goalDateInput });
     setShowDateEdit(false);
-  }
-
-  function openDateEdit() {
-    setGoalDateInput(weightGoalDate ?? '');
-    setShowDateEdit(true);
   }
 
   return (
@@ -70,11 +65,10 @@ export default function WeightPage() {
           <div className="text-5xl mb-2">🏆</div>
           <div className="text-2xl font-black text-gray-900">Milestone Hit!</div>
           <div className="text-gray-600 mt-1">You hit {showMilestone} lbs — {Math.round(startWeight - showMilestone)} lbs down!</div>
-          <button onClick={() => setShowMilestone(null)} className="mt-3 text-sm text-gray-400">Dismiss</button>
+          <button onClick={() => setShowMilestone(null)} className="mt-3 text-sm text-gray-400 hover:text-gray-600">Dismiss</button>
         </div>
       )}
 
-      {/* Current weight + ring */}
       <div className="card flex items-center gap-6">
         <div className="flex-1">
           <div className="label">Current Weight</div>
@@ -89,64 +83,60 @@ export default function WeightPage() {
         <ProgressRing progress={progressPct} size={110} strokeWidth={10} color="#2563EB" label="to goal" />
       </div>
 
-      {/* Stats */}
       <div className="flex gap-3 overflow-x-auto pb-1">
         <StatCard label="Weekly Rate" value={trend.weeklyRate > 0 ? `${trend.weeklyRate.toFixed(1)} lbs` : '--'} subtitle="per week" emoji="📉" color="blue" />
         <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" emoji="🎯" color="orange" />
       </div>
 
-      {/* Goal date + projection card */}
-      <div className="card space-y-3">
-        {/* User target date */}
-        <div className="flex items-start gap-3">
-          <div className="text-2xl mt-0.5">🎯</div>
+      <div className="card space-y-4">
+        <div className="flex items-start gap-4">
+          <div className="text-2xl">🎯</div>
           <div className="flex-1">
-            <div className="label mb-1">Your Goal Date</div>
+            <div className="label">Your Goal Date</div>
             {showDateEdit ? (
-              <div className="flex gap-2 items-center">
+              <div className="flex items-center gap-2 mt-1">
                 <input
-                  autoFocus
-                  className="input flex-1 text-sm"
                   type="date"
+                  className="input text-sm"
                   value={goalDateInput}
                   onChange={e => setGoalDateInput(e.target.value)}
                 />
-                <button onClick={saveGoalDate} className="btn-primary px-3 py-2 text-sm">Set</button>
-                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 text-lg leading-none">✕</button>
+                <button onClick={saveGoalDate} disabled={!goalDateInput} className="btn-primary px-3 py-2 text-sm">Set</button>
+                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
               </div>
             ) : weightGoalDate ? (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 mt-0.5">
                 <span className="font-bold text-gray-900">
                   {new Date(weightGoalDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </span>
-                <button onClick={openDateEdit} className="text-xs text-blue-500 font-semibold">Edit</button>
+                <button onClick={() => { setGoalDateInput(weightGoalDate); setShowDateEdit(true); }} className="text-xs text-blue-500 font-semibold hover:underline">Edit</button>
               </div>
             ) : (
-              <button onClick={openDateEdit} className="text-sm text-blue-500 font-semibold">+ Set a target date</button>
+              <button onClick={() => { setGoalDateInput(''); setShowDateEdit(true); }} className="text-sm text-blue-500 font-semibold mt-0.5 hover:underline">
+                + Set a target date
+              </button>
             )}
           </div>
         </div>
 
-        {/* Auto-projected date */}
-        <div className="flex items-start gap-3 pt-3 border-t border-gray-100">
-          <div className="text-2xl mt-0.5">📅</div>
+        <div className="border-t border-gray-100" />
+
+        <div className="flex items-start gap-4">
+          <div className="text-2xl">📅</div>
           <div>
-            <div className="label mb-1">Projected at Current Pace</div>
+            <div className="label">Projected at Current Pace</div>
             {trend.projected ? (
-              <div>
-                <div className="font-semibold text-gray-800">
-                  {trend.projected.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </div>
-                <div className="text-xs text-gray-400 mt-0.5">{trend.weeklyRate.toFixed(1)} lbs/week pace</div>
-              </div>
+              <>
+                <div className="font-bold text-gray-900 mt-0.5">{trend.projected.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                <div className="text-xs text-gray-400">at your current {trend.weeklyRate.toFixed(1)} lbs/week pace</div>
+              </>
             ) : (
-              <div className="text-gray-400 text-sm">Log more entries to project your timeline</div>
+              <div className="text-gray-400 text-sm mt-0.5">Log more weights to project your timeline</div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Chart */}
       <div className="card">
         <h2 className="section-title mb-4">Progress Chart</h2>
         {chartData.length < 2 ? (
@@ -176,7 +166,6 @@ export default function WeightPage() {
         )}
       </div>
 
-      {/* Weight log */}
       <div>
         <h2 className="section-title mb-3">Weight Log</h2>
         {sortedEntries.length === 0 ? (
@@ -210,7 +199,6 @@ export default function WeightPage() {
         )}
       </div>
 
-      {/* Log modal */}
       {showLog && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-sm shadow-2xl">

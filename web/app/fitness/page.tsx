@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
-import { WorkoutSession } from '@/lib/types';
+import { WorkoutSession, WorkoutSet } from '@/lib/types';
 import { nanoid, formatDuration, formatDate } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
 
@@ -17,85 +17,71 @@ const CALISTHENICS_PRESETS = [
   { label: 'Plank', emoji: '🧘' },
 ];
 
-interface SetEntry {
-  id: string;
-  exercise: string;
-  reps: number;
-  restSeconds: number;
-}
-
 function workoutEmoji(name: string): string {
   const n = name.toLowerCase();
-  if (n.includes('run') || n.includes('jog')) return '🏃';
-  if (n.includes('jiu') || n.includes('jujitsu') || n.includes('bjj') || n.includes('martial') || n.includes('grappl')) return '🥋';
-  if (n.includes('box')) return '🥊';
-  if (n.includes('swim')) return '🏊';
-  if (n.includes('bike') || n.includes('cycl')) return '🚴';
-  if (n.includes('yoga')) return '🧘';
-  if (n.includes('pull')) return '🏋️';
-  if (n.includes('push')) return '👐';
-  if (n.includes('dip')) return '💪';
+  if (/jujitsu|bjj|jiu.?jitsu|grappl/.test(n)) return '🥋';
+  if (/box|muay|kickbox/.test(n)) return '🥊';
+  if (/run|jog|sprint/.test(n)) return '🏃';
+  if (/swim/.test(n)) return '🏊';
+  if (/bike|cycl/.test(n)) return '🚴';
+  if (/yoga/.test(n)) return '🧘';
+  if (/hike|walk/.test(n)) return '🥾';
+  if (/lift|weight|gym/.test(n)) return '🏋️';
   return '⚡';
+}
+
+function getLabel(w: WorkoutSession): { label: string; emoji: string } {
+  if (w.name) return { label: w.name, emoji: workoutEmoji(w.name) };
+  const legacy: Record<string, { label: string; emoji: string }> = {
+    pullUps: { label: 'Pull-Ups', emoji: '🏋️' },
+    dips: { label: 'Dips', emoji: '💪' },
+    pushUps: { label: 'Push-Ups', emoji: '👐' },
+    running: { label: 'Running', emoji: '🏃' },
+    custom: { label: 'Workout', emoji: '⚡' },
+  };
+  return legacy[w.type] ?? { label: 'Workout', emoji: '⚡' };
 }
 
 export default function FitnessPage() {
   const store = useStore();
   const [showLog, setShowLog] = useState(false);
   const [workoutName, setWorkoutName] = useState('');
-  const [sets, setSets] = useState<SetEntry[]>([]);
   const [activeExercise, setActiveExercise] = useState('');
+  const [sets, setSets] = useState<WorkoutSet[]>([]);
   const [repsInput, setRepsInput] = useState('');
   const [restInput, setRestInput] = useState('60');
-  const [durationInput, setDurationInput] = useState('');
   const [calories, setCalories] = useState('');
+  const [duration, setDuration] = useState('');
   const [notes, setNotes] = useState('');
-
-  function selectPreset(label: string) {
-    setActiveExercise(label);
-    setRepsInput('');
-  }
 
   function addSet() {
     const reps = parseInt(repsInput);
-    const exercise = activeExercise.trim();
-    if (!reps || !exercise) return;
-    setSets(s => [...s, { id: nanoid(), exercise, reps, restSeconds: parseInt(restInput) || 60 }]);
+    if (!reps) return;
+    setSets(s => [...s, { id: nanoid(), exercise: activeExercise || undefined, reps, restSeconds: parseInt(restInput) || 60 }]);
     setRepsInput('');
   }
 
   function saveWorkout() {
     const session: WorkoutSession = {
       id: nanoid(),
-      name: workoutName.trim() || 'Workout',
       type: 'custom',
+      name: workoutName.trim(),
       date: new Date().toISOString(),
-      sets: sets.map(s => ({ id: s.id, exercise: s.exercise, reps: s.reps, restSeconds: s.restSeconds })),
+      sets,
       notes,
-      duration: (parseInt(durationInput) || 0) * 60,
+      duration: parseFloat(duration) ? Math.round(parseFloat(duration) * 60) : 0,
       calories: parseFloat(calories) || 0,
     };
     store.addWorkout(session);
-    resetForm();
-  }
-
-  function resetForm() {
     setShowLog(false);
     setWorkoutName('');
-    setSets([]);
     setActiveExercise('');
+    setSets([]);
     setRepsInput('');
     setRestInput('60');
-    setDurationInput('');
     setCalories('');
+    setDuration('');
     setNotes('');
-  }
-
-  function getLabel(w: WorkoutSession): string {
-    if (w.name) return w.name;
-    const legacyMap: Record<string, string> = {
-      pullUps: 'Pull-Ups', dips: 'Dips', pushUps: 'Push-Ups', running: 'Running', custom: 'Workout',
-    };
-    return legacyMap[w.type] ?? 'Workout';
   }
 
   const weeklyWorkouts = store.weeklyWorkoutCount();
@@ -107,14 +93,14 @@ export default function FitnessPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-black text-gray-900">Fitness 🏋️</h1>
-          <p className="text-gray-400 text-sm font-medium mt-0.5">Track every rep, every run</p>
+          <p className="text-gray-400 text-sm font-medium mt-0.5">Track every session</p>
         </div>
         <button onClick={() => setShowLog(true)} className="btn-primary">+ Log</button>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
         <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" emoji="🔥" color="orange" compact />
-        <StatCard label="Calories" value={`${Math.round(totalCalories)}`} subtitle="burned" emoji="⚡" color="red" compact />
+        <StatCard label="Cals" value={`${Math.round(totalCalories)}`} subtitle="burned" emoji="⚡" color="red" compact />
         <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" emoji="💪" color="blue" compact />
       </div>
 
@@ -129,18 +115,19 @@ export default function FitnessPage() {
         ) : (
           <div className="space-y-3">
             {store.workouts.slice(0, 15).map(w => {
-              const label = getLabel(w);
-              const repCount = w.sets.reduce((s, x) => s + x.reps, 0);
+              const { label, emoji } = getLabel(w);
+              const repsTotal = w.sets.reduce((s, x) => s + x.reps, 0);
+              const exercises = [...new Set(w.sets.map(s => s.exercise).filter(Boolean))];
               return (
-                <div key={w.id} className="card-sm flex items-center gap-3">
-                  <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-xl flex-shrink-0">
-                    {workoutEmoji(label)}
+                <div key={w.id} className="card-sm flex items-center gap-4">
+                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-2xl flex-shrink-0">
+                    {emoji}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm">{label}</div>
-                    <div className="text-xs text-gray-400 mt-0.5 truncate">
-                      {w.sets.length > 0 ? `${w.sets.length} sets · ${repCount} reps` : ''}
-                      {w.distance ? ` · ${w.distance.toFixed(2)} mi` : ''}
+                    <div className="font-semibold text-gray-900">{label}</div>
+                    <div className="text-sm text-gray-400 mt-0.5">
+                      {exercises.length > 0 && <span>{exercises.join(', ')} · </span>}
+                      {w.sets.length > 0 && `${w.sets.length} sets · ${repsTotal} reps`}
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
@@ -158,33 +145,29 @@ export default function FitnessPage() {
       {showLog && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-end sm:items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+            <div className="p-6 border-b border-gray-100">
               <h2 className="text-xl font-bold">Log Workout</h2>
-              <button onClick={resetForm} className="text-gray-400 text-xl leading-none">✕</button>
             </div>
-            <div className="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-
-              {/* Free-text workout name */}
+            <div className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
               <div>
                 <label className="label mb-1 block">Workout Name</label>
                 <input
                   autoFocus
                   className="input"
-                  placeholder="e.g. Jujitsu, Morning Run, Calisthenics"
+                  placeholder="e.g. Jujitsu, Morning Run, Chest Day..."
                   value={workoutName}
                   onChange={e => setWorkoutName(e.target.value)}
                 />
               </div>
 
-              {/* Calisthenics sets with presets */}
               <div>
-                <label className="label mb-2 block">Calisthenics Sets (optional)</label>
-                <div className="flex flex-wrap gap-1.5 mb-3">
+                <label className="label mb-2 block">Quick Add Exercise</label>
+                <div className="flex flex-wrap gap-2">
                   {CALISTHENICS_PRESETS.map(p => (
                     <button
                       key={p.label}
-                      onClick={() => selectPreset(p.label)}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+                      onClick={() => setActiveExercise(p.label)}
+                      className={`px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${
                         activeExercise === p.label
                           ? 'bg-blue-600 text-white border-blue-600'
                           : 'border-gray-200 text-gray-600 hover:border-blue-300'
@@ -194,38 +177,29 @@ export default function FitnessPage() {
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2">
+              </div>
+
+              <div>
+                <label className="label mb-2 block">Sets {activeExercise && `· ${activeExercise}`}</label>
+                <div className="flex gap-2 mb-3">
                   <input
-                    className="input flex-1"
-                    placeholder="Exercise name"
-                    value={activeExercise}
-                    onChange={e => setActiveExercise(e.target.value)}
-                  />
-                  <input
-                    className="input w-20"
+                    className="input"
                     type="number"
                     placeholder="Reps"
                     value={repsInput}
                     onChange={e => setRepsInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && addSet()}
                   />
-                  <input
-                    className="input w-20"
-                    type="number"
-                    placeholder="Rest s"
-                    value={restInput}
-                    onChange={e => setRestInput(e.target.value)}
-                  />
-                  <button onClick={addSet} disabled={!repsInput || !activeExercise} className="btn-primary px-3">+</button>
+                  <input className="input w-24" type="number" placeholder="Rest (s)" value={restInput} onChange={e => setRestInput(e.target.value)} />
+                  <button onClick={addSet} disabled={!repsInput} className="btn-primary px-4">+</button>
                 </div>
                 {sets.length > 0 && (
-                  <div className="space-y-1.5 mt-3">
+                  <div className="space-y-2">
                     {sets.map((s, i) => (
-                      <div key={s.id} className="flex items-center gap-2 bg-gray-50 rounded-xl px-3 py-2">
-                        <span className="text-xs text-gray-400 w-5 flex-shrink-0">#{i + 1}</span>
-                        <span className="text-sm font-semibold text-gray-800 flex-1 truncate">{s.exercise}</span>
-                        <span className="text-xs text-gray-500 flex-shrink-0">{s.reps} reps · {s.restSeconds}s</span>
-                        <button onClick={() => setSets(prev => prev.filter(x => x.id !== s.id))} className="text-red-400 text-sm flex-shrink-0">✕</button>
+                      <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5">
+                        <span className="font-semibold text-sm text-gray-700">Set {i + 1}{s.exercise ? ` · ${s.exercise}` : ''}</span>
+                        <span className="text-sm text-gray-500">{s.reps} reps · {s.restSeconds}s rest</span>
+                        <button onClick={() => setSets(prev => prev.filter(x => x.id !== s.id))} className="text-red-400 hover:text-red-600 text-sm">✕</button>
                       </div>
                     ))}
                   </div>
@@ -235,22 +209,22 @@ export default function FitnessPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="label mb-1 block">Duration (min)</label>
-                  <input className="input" type="number" placeholder="45" value={durationInput} onChange={e => setDurationInput(e.target.value)} />
+                  <input className="input" type="number" placeholder="45" value={duration} onChange={e => setDuration(e.target.value)} />
                 </div>
                 <div>
-                  <label className="label mb-1 block">Calories</label>
-                  <input className="input" type="number" placeholder="300" value={calories} onChange={e => setCalories(e.target.value)} />
+                  <label className="label mb-1 block">Cals Burned</label>
+                  <input className="input" type="number" placeholder="200" value={calories} onChange={e => setCalories(e.target.value)} />
                 </div>
               </div>
 
               <div>
                 <label className="label mb-1 block">Notes</label>
-                <input className="input" placeholder="Optional notes" value={notes} onChange={e => setNotes(e.target.value)} />
+                <input className="input" placeholder="How did it go?" value={notes} onChange={e => setNotes(e.target.value)} />
               </div>
             </div>
-            <div className="p-5 border-t border-gray-100 flex gap-3">
-              <button onClick={resetForm} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600">Cancel</button>
-              <button onClick={saveWorkout} disabled={!workoutName.trim()} className="flex-1 btn-primary">Save</button>
+            <div className="p-6 border-t border-gray-100 flex gap-3">
+              <button onClick={() => setShowLog(false)} className="flex-1 py-3 rounded-xl border border-gray-200 font-semibold text-gray-600 hover:bg-gray-50 transition-colors">Cancel</button>
+              <button onClick={saveWorkout} disabled={!workoutName.trim()} className="flex-1 btn-primary">Save Workout</button>
             </div>
           </div>
         </div>
