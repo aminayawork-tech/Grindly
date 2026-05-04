@@ -68,6 +68,18 @@ export function last7Days(): string[] {
   });
 }
 
+/** Returns Mon–Sun of the current week as YYYY-MM-DD strings */
+export function currentWeekDays(): string[] {
+  const today = new Date();
+  const day = today.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+  const diff = day === 0 ? -6 : 1 - day; // offset to Monday
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(today.getDate() + diff + i);
+    return dateKey(d);
+  });
+}
+
 export function sevenDayLabel(key: string): string {
   const d = new Date(key + 'T00:00:00');
   return d.toLocaleDateString('en-US', { weekday: 'short' }).slice(0, 1);

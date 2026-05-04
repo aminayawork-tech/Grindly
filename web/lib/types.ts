@@ -9,6 +9,13 @@ export interface Milestone {
   achieved: boolean;
 }
 
+export interface GoalEntry {
+  id: string;
+  date: string;
+  note: string;
+  progressValue?: number;
+}
+
 export interface Goal {
   id: string;
   title: string;
@@ -22,10 +29,12 @@ export interface Goal {
   targetDate?: string;
   isActive: boolean;
   createdAt: string;
+  entries?: GoalEntry[];
 }
 
 export interface WorkoutSet {
   id: string;
+  exercise?: string;
   reps: number;
   restSeconds: number;
 }
@@ -33,6 +42,7 @@ export interface WorkoutSet {
 export interface WorkoutSession {
   id: string;
   type: WorkoutType;
+  name?: string;
   date: string;
   sets: WorkoutSet[];
   notes: string;
@@ -89,6 +99,7 @@ export interface AppSettings {
   dailyCalorieGoal: number;
   startWeight: number;
   goalWeight: number;
+  weightGoalDate?: string;
   anthropicApiKey: string;
   nutritionixAppId: string;
   nutritionixAppKey: string;

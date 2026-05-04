@@ -24,6 +24,7 @@ interface StoreActions {
   addWeightEntry: (w: WeightEntry) => void;
   toggleHabit: (id: string) => void;
   addHabit: (h: Habit) => void;
+  removeHabit: (id: string) => void;
   addCoachMessage: (m: CoachMessage) => void;
   updateSettings: (s: Partial<AppSettings>) => void;
   todayFoodEntries: () => FoodEntry[];
@@ -121,6 +122,10 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setState(s => { const n = { ...s, habits: [...s.habits, h] }; localStorage.setItem(STORAGE_KEY, JSON.stringify(n)); return n; });
   }, []);
 
+  const removeHabit = useCallback((id: string) => {
+    setState(s => { const n = { ...s, habits: s.habits.filter(h => h.id !== id) }; localStorage.setItem(STORAGE_KEY, JSON.stringify(n)); return n; });
+  }, []);
+
   const addCoachMessage = useCallback((m: CoachMessage) => {
     setState(s => { const n = { ...s, coachMessages: [...s.coachMessages, m] }; localStorage.setItem(STORAGE_KEY, JSON.stringify(n)); return n; });
   }, []);
@@ -176,11 +181,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     return { current, weeklyRate, totalLost, remaining, projected };
   }, [state.weightEntries, state.settings]);
 
+  // suppress unused warning
+  void persist;
+
   return (
     <StoreContext.Provider value={{
       ...state,
       addGoal, updateGoal, addWorkout, addFoodEntry, removeFoodEntry,
-      addWeightEntry, toggleHabit, addHabit, addCoachMessage, updateSettings,
+      addWeightEntry, toggleHabit, addHabit, removeHabit, addCoachMessage, updateSettings,
       todayFoodEntries, todayCalories, sevenDayCalorieAverage,
       weeklyWorkoutCount, weightTrendData,
     }}>

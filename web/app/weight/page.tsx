@@ -14,9 +14,11 @@ export default function WeightPage() {
   const [weightInput, setWeightInput] = useState('');
   const [notes, setNotes] = useState('');
   const [showMilestone, setShowMilestone] = useState<number | null>(null);
+  const [showDateEdit, setShowDateEdit] = useState(false);
+  const [goalDateInput, setGoalDateInput] = useState('');
 
   const trend = store.weightTrendData();
-  const { startWeight, goalWeight } = store.settings;
+  const { startWeight, goalWeight, weightGoalDate } = store.settings;
   const sortedEntries = [...store.weightEntries].sort((a, b) => a.date.localeCompare(b.date));
   const progressPct = Math.min(Math.max(trend.totalLost / (startWeight - goalWeight), 0), 1);
 
@@ -41,6 +43,11 @@ export default function WeightPage() {
     setShowLog(false);
     setWeightInput('');
     setNotes('');
+  }
+
+  function saveGoalDate() {
+    store.updateSettings({ weightGoalDate: goalDateInput });
+    setShowDateEdit(false);
   }
 
   return (
@@ -84,19 +91,55 @@ export default function WeightPage() {
         <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" emoji="🎯" color="orange" />
       </div>
 
-      {/* Projection */}
-      <div className="card-sm flex items-center gap-4">
-        <div className="text-3xl">📅</div>
-        <div>
-          <div className="label">Projected Goal Date</div>
-          {trend.projected ? (
-            <>
-              <div className="font-bold text-gray-900 mt-0.5">{trend.projected.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-              <div className="text-xs text-gray-400">at your current {trend.weeklyRate.toFixed(1)} lbs/week pace</div>
-            </>
-          ) : (
-            <div className="text-gray-400 text-sm">Log more weights to project your timeline</div>
-          )}
+      {/* Goal date + projection */}
+      <div className="card space-y-4">
+        {/* User-set goal date */}
+        <div className="flex items-start gap-4">
+          <div className="text-2xl">🎯</div>
+          <div className="flex-1">
+            <div className="label">Your Goal Date</div>
+            {showDateEdit ? (
+              <div className="flex items-center gap-2 mt-1">
+                <input
+                  type="date"
+                  className="input text-sm"
+                  value={goalDateInput}
+                  onChange={e => setGoalDateInput(e.target.value)}
+                />
+                <button onClick={saveGoalDate} disabled={!goalDateInput} className="btn-primary px-3 py-2 text-sm">Set</button>
+                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+              </div>
+            ) : weightGoalDate ? (
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="font-bold text-gray-900">
+                  {new Date(weightGoalDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </span>
+                <button onClick={() => { setGoalDateInput(weightGoalDate); setShowDateEdit(true); }} className="text-xs text-blue-500 font-semibold hover:underline">Edit</button>
+              </div>
+            ) : (
+              <button onClick={() => { setGoalDateInput(''); setShowDateEdit(true); }} className="text-sm text-blue-500 font-semibold mt-0.5 hover:underline">
+                + Set a target date
+              </button>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t border-gray-100" />
+
+        {/* Auto-projected date */}
+        <div className="flex items-start gap-4">
+          <div className="text-2xl">📅</div>
+          <div>
+            <div className="label">Projected at Current Pace</div>
+            {trend.projected ? (
+              <>
+                <div className="font-bold text-gray-900 mt-0.5">{trend.projected.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                <div className="text-xs text-gray-400">at your current {trend.weeklyRate.toFixed(1)} lbs/week pace</div>
+              </>
+            ) : (
+              <div className="text-gray-400 text-sm mt-0.5">Log more weights to project your timeline</div>
+            )}
+          </div>
         </div>
       </div>
 
