@@ -91,10 +91,10 @@ export const defaultGoals: Goal[] = [
 ];
 
 export const defaultHabits: Habit[] = [
-  { id: nanoid(), name: 'Take Hims Medication', icon: '💊', color: 'purple', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
-  { id: nanoid(), name: 'Morning Workout', icon: '🏋️', color: 'orange', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
-  { id: nanoid(), name: 'Log Calories', icon: '🍽️', color: 'green', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
-  { id: nanoid(), name: 'Log Weight', icon: '⚖️', color: 'blue', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
+  { id: nanoid(), name: 'Take Hims Medication', icon: 'Pill', color: 'purple', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
+  { id: nanoid(), name: 'Morning Workout', icon: 'Dumbbell', color: 'orange', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
+  { id: nanoid(), name: 'Log Calories', icon: 'Utensils', color: 'green', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
+  { id: nanoid(), name: 'Log Weight', icon: 'Scale', color: 'blue', completions: [], reminderEnabled: true, createdAt: new Date().toISOString() },
 ];
 
 export const defaultSettings: AppSettings = {

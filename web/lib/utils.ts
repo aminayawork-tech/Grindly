@@ -37,18 +37,6 @@ export function categoryColor(category: string): string {
   return map[category] ?? 'gray';
 }
 
-export function categoryIcon(category: string): string {
-  const map: Record<string, string> = {
-    fitness: '🔥',
-    weight: '⚖️',
-    financial: '💰',
-    relationship: '❤️',
-    health: '💊',
-    custom: '⭐',
-  };
-  return map[category] ?? '🎯';
-}
-
 export function habitColorClass(color: string): { bg: string; text: string; ring: string } {
   const map: Record<string, { bg: string; text: string; ring: string }> = {
     orange: { bg: 'bg-orange-500', text: 'text-orange-600', ring: 'ring-orange-300' },

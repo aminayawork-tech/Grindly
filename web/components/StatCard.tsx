@@ -1,8 +1,10 @@
+import React from 'react';
+
 interface StatCardProps {
   label: string;
   value: string;
   subtitle?: string;
-  emoji: string;
+  icon: React.ReactNode;
   color?: 'orange' | 'blue' | 'green' | 'purple' | 'pink' | 'red';
   compact?: boolean;
 }
@@ -16,11 +18,11 @@ const colorMap = {
   red: 'bg-red-50 text-red-500',
 };
 
-export default function StatCard({ label, value, subtitle, emoji, color = 'blue', compact }: StatCardProps) {
+export default function StatCard({ label, value, subtitle, icon, color = 'blue', compact }: StatCardProps) {
   return (
     <div className={`min-w-0 bg-white rounded-xl shadow-sm border border-gray-100 ${compact ? 'p-3' : 'p-4'} flex-1`}>
       <div className={`${compact ? 'w-7 h-7' : 'w-8 h-8'} rounded-lg flex items-center justify-center mb-1.5 ${colorMap[color]}`}>
-        <span className={compact ? 'text-sm' : 'text-base'}>{emoji}</span>
+        {icon}
       </div>
       <div className={`font-bold text-gray-900 tabular-nums truncate ${compact ? 'text-lg' : 'text-xl'}`}>{value}</div>
       <div className="label mt-0.5 truncate">{label}</div>
