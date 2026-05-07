@@ -4,12 +4,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { FoodEntry, MealType } from '@/lib/types';
 import { nanoid } from '@/lib/utils';
+import { Utensils, Sunrise, Sun, Moon, Leaf, BarChart3, Search, X, Check, Plus } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
-const MEALS: { id: MealType; label: string; emoji: string }[] = [
-  { id: 'breakfast', label: 'Breakfast', emoji: '🌅' },
-  { id: 'lunch', label: 'Lunch', emoji: '☀️' },
-  { id: 'dinner', label: 'Dinner', emoji: '🌙' },
-  { id: 'snacks', label: 'Snacks', emoji: '🍎' },
+const MEALS: { id: MealType; label: string; Icon: LucideIcon }[] = [
+  { id: 'breakfast', label: 'Breakfast', Icon: Sunrise },
+  { id: 'lunch', label: 'Lunch', Icon: Sun },
+  { id: 'dinner', label: 'Dinner', Icon: Moon },
+  { id: 'snacks', label: 'Snacks', Icon: Leaf },
 ];
 
 interface FoodResult {
@@ -89,7 +91,7 @@ export default function CaloriesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">Calories 🍽️</h1>
+          <h1 className="text-3xl font-black text-gray-900">Calories</h1>
           <p className="text-gray-400 text-sm font-medium mt-0.5">Search, tap, done</p>
         </div>
         <button onClick={() => setShowSearch(true)} className="btn-primary">+ Add Food</button>
@@ -134,7 +136,9 @@ export default function CaloriesPage() {
 
       {/* 7-day average */}
       <div className="card-sm flex items-center gap-4">
-        <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-2xl">📊</div>
+        <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-600 flex-shrink-0">
+          <BarChart3 size={24} />
+        </div>
         <div className="flex-1">
           <div className="label">7-day average</div>
           <div className="text-2xl font-bold tabular-nums">{Math.round(sevenAvg)} <span className="text-base font-normal text-gray-400">kcal/day</span></div>
@@ -156,7 +160,7 @@ export default function CaloriesPage() {
             <div key={meal.id} className="card">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
-                  <span className="text-xl">{meal.emoji}</span>
+                  <meal.Icon size={16} className="text-gray-500" />
                   <span className="font-bold text-gray-900">{meal.label}</span>
                   {mealCals > 0 && <span className="text-sm text-gray-400 tabular-nums">{Math.round(mealCals)} kcal</span>}
                 </div>
@@ -178,7 +182,7 @@ export default function CaloriesPage() {
                         <div className="text-xs text-gray-400">{e.servingQty} {e.servingUnit}{e.brandName ? ` · ${e.brandName}` : ''}</div>
                       </div>
                       <div className="text-sm font-semibold text-gray-700 tabular-nums flex-shrink-0">{Math.round(e.calories)} kcal</div>
-                      <button onClick={() => store.removeFoodEntry(e.id)} className="text-red-300 hover:text-red-500 text-sm flex-shrink-0">✕</button>
+                      <button onClick={() => store.removeFoodEntry(e.id)} className="text-red-300 hover:text-red-500 flex-shrink-0 flex items-center justify-center"><X size={14} /></button>
                     </div>
                   ))}
                 </div>
@@ -195,19 +199,19 @@ export default function CaloriesPage() {
             <div className="p-5 border-b border-gray-100">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xl font-bold">Add Food</h2>
-                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setResults([]); }} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
+                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setResults([]); }} className="text-gray-400 hover:text-gray-600 flex items-center justify-center"><X size={20} /></button>
               </div>
               {/* Meal selector */}
               <div className="flex gap-2 mb-3 overflow-x-auto">
                 {MEALS.map(m => (
                   <button key={m.id} onClick={() => setSelectedMeal(m.id)}
-                    className={`px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all ${selectedMeal === m.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
-                    {m.emoji} {m.label}
+                    className={`px-3 py-1.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all flex items-center gap-1.5 ${selectedMeal === m.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}>
+                    <m.Icon size={14} /> {m.label}
                   </button>
                 ))}
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-3 text-gray-400">🔍</span>
+                <span className="absolute left-3 top-3 text-gray-400"><Search size={16} /></span>
                 <input
                   autoFocus
                   className="input pl-9"
@@ -221,13 +225,13 @@ export default function CaloriesPage() {
             <div className="flex-1 overflow-y-auto">
               {addedFeedback && (
                 <div className="mx-4 mt-3 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-semibold flex items-center gap-2">
-                  ✓ Added {addedFeedback}
+                  <Check size={14} /> Added {addedFeedback}
                 </div>
               )}
               {searching && <div className="p-6 text-center text-gray-400">Searching...</div>}
               {!searching && results.length === 0 && searchQuery.length >= 2 && (
                 <div className="p-6 text-center text-gray-400">
-                  <div className="text-3xl mb-2">🍴</div>
+                  <Utensils size={32} className="mx-auto mb-2 text-gray-200" />
                   <p className="font-medium">No results for &ldquo;{searchQuery}&rdquo;</p>
                   {!process.env.NUTRITIONIX_APP_ID && (
                     <p className="text-xs mt-2 text-orange-500">Add Nutritionix API keys in Settings to enable food search</p>
@@ -236,14 +240,16 @@ export default function CaloriesPage() {
               )}
               {!searching && results.length === 0 && searchQuery.length < 2 && (
                 <div className="p-8 text-center text-gray-300">
-                  <div className="text-4xl mb-2">🥗</div>
+                  <Utensils size={32} className="mx-auto mb-2" />
                   <p className="font-medium">Type to search any food</p>
                 </div>
               )}
               {results.map((food, i) => (
                 <button key={i} onClick={() => addFood(food)}
                   className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-50 last:border-0">
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-lg flex-shrink-0">🥬</div>
+                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center text-green-600 flex-shrink-0">
+                    <Leaf size={18} />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-gray-900 text-sm truncate capitalize">{food.food_name}</div>
                     <div className="text-xs text-gray-400">{food.serving_qty} {food.serving_unit}{food.brand_name ? ` · ${food.brand_name}` : ''}</div>

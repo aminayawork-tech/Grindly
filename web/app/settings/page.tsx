@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
+import { Check } from 'lucide-react';
 
 export default function SettingsPage() {
   const store = useStore();
@@ -47,13 +48,13 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6 max-w-lg">
       <div>
-        <h1 className="text-3xl font-black text-gray-900">Settings ⚙️</h1>
+        <h1 className="text-3xl font-black text-gray-900">Settings</h1>
         <p className="text-gray-400 text-sm font-medium mt-0.5">Configure your goals and API keys</p>
       </div>
 
       {saved && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-2">
-          ✓ Settings saved
+          <Check size={14} /> Settings saved
         </div>
       )}
 

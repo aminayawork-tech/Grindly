@@ -7,6 +7,7 @@ import { nanoid, formatDate, todayKey } from '@/lib/utils';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
+import { Scale, TrendingDown, Target, Calendar, Trophy, BarChart3, Check } from 'lucide-react';
 
 export default function WeightPage() {
   const store = useStore();
@@ -54,7 +55,7 @@ export default function WeightPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">Weight ⚖️</h1>
+          <h1 className="text-3xl font-black text-gray-900">Weight</h1>
           <p className="text-gray-400 text-sm font-medium mt-0.5">Goal: {startWeight} → {goalWeight} lbs</p>
         </div>
         <button onClick={() => setShowLog(true)} className="btn-primary">+ Log</button>
@@ -62,7 +63,7 @@ export default function WeightPage() {
 
       {showMilestone && (
         <div className="card bg-gradient-to-r from-yellow-50 to-orange-50 border-orange-200 text-center py-6">
-          <div className="text-5xl mb-2">🏆</div>
+          <Trophy size={48} className="mx-auto text-orange-400 mb-2" />
           <div className="text-2xl font-black text-gray-900">Milestone Hit!</div>
           <div className="text-gray-600 mt-1">You hit {showMilestone} lbs — {Math.round(startWeight - showMilestone)} lbs down!</div>
           <button onClick={() => setShowMilestone(null)} className="mt-3 text-sm text-gray-400 hover:text-gray-600">Dismiss</button>
@@ -76,7 +77,7 @@ export default function WeightPage() {
           <div className="text-gray-400 font-medium">lbs</div>
           {trend.totalLost > 0 && (
             <div className="mt-2 inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-sm font-semibold px-3 py-1.5 rounded-full">
-              ↓ {trend.totalLost.toFixed(1)} lbs lost
+              <TrendingDown size={14} className="inline" /> {trend.totalLost.toFixed(1)} lbs lost
             </div>
           )}
         </div>
@@ -84,13 +85,13 @@ export default function WeightPage() {
       </div>
 
       <div className="flex gap-3 overflow-x-auto pb-1">
-        <StatCard label="Weekly Rate" value={trend.weeklyRate > 0 ? `${trend.weeklyRate.toFixed(1)} lbs` : '--'} subtitle="per week" emoji="📉" color="blue" />
-        <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" emoji="🎯" color="orange" />
+        <StatCard label="Weekly Rate" value={trend.weeklyRate > 0 ? `${trend.weeklyRate.toFixed(1)} lbs` : '--'} subtitle="per week" icon={<TrendingDown size={14} />} color="blue" />
+        <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" icon={<Target size={14} />} color="orange" />
       </div>
 
       <div className="card space-y-4">
         <div className="flex items-start gap-4">
-          <div className="text-2xl">🎯</div>
+          <div className="text-blue-500"><Target size={24} /></div>
           <div className="flex-1">
             <div className="label">Your Goal Date</div>
             {showDateEdit ? (
@@ -102,7 +103,7 @@ export default function WeightPage() {
                   onChange={e => setGoalDateInput(e.target.value)}
                 />
                 <button onClick={saveGoalDate} disabled={!goalDateInput} className="btn-primary px-3 py-2 text-sm">Set</button>
-                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
+                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 hover:text-gray-600 leading-none"><Check size={16} /></button>
               </div>
             ) : weightGoalDate ? (
               <div className="flex items-center gap-2 mt-0.5">
@@ -122,7 +123,7 @@ export default function WeightPage() {
         <div className="border-t border-gray-100" />
 
         <div className="flex items-start gap-4">
-          <div className="text-2xl">📅</div>
+          <div className="text-blue-500"><Calendar size={24} /></div>
           <div>
             <div className="label">Projected at Current Pace</div>
             {trend.projected ? (
@@ -138,10 +139,10 @@ export default function WeightPage() {
       </div>
 
       <div className="card">
-        <h2 className="section-title mb-4">Progress Chart</h2>
+        <h2 className="section-title mb-4 flex items-center gap-2"><BarChart3 size={18} /> Progress Chart</h2>
         {chartData.length < 2 ? (
           <div className="text-center py-10 text-gray-300">
-            <div className="text-4xl mb-2">📊</div>
+            <BarChart3 size={40} className="mx-auto text-gray-200 mb-2" />
             <p className="font-medium">Log at least 2 weights to see your trend</p>
           </div>
         ) : (
@@ -170,7 +171,7 @@ export default function WeightPage() {
         <h2 className="section-title mb-3">Weight Log</h2>
         {sortedEntries.length === 0 ? (
           <div className="card text-center py-10 text-gray-300">
-            <div className="text-4xl mb-2">⚖️</div>
+            <Scale size={40} className="mx-auto text-gray-200 mb-2" />
             <p>No weight logged yet. Tap + Log to start.</p>
           </div>
         ) : (
