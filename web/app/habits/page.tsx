@@ -5,8 +5,9 @@ import { useStore } from '@/lib/store';
 import { Habit } from '@/lib/types';
 import { nanoid, todayKey, dateKey, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
 import StatCard from '@/components/StatCard';
+import { CheckSquare, TrendingUp, Flame, Check, MoreHorizontal } from 'lucide-react';
+import HabitIcon, { HABIT_ICONS } from '@/components/HabitIcon';
 
-const ICONS = ['💊', '🏋️', '🍽️', '⚖️', '📚', '💧', '🧘', '🌅', '🏃', '💪', '🥗', '😴', '🧠', '❤️'];
 const COLORS = ['orange', 'blue', 'green', 'purple', 'pink', 'red'] as const;
 
 function getStreak(habit: Habit): number {
@@ -31,7 +32,7 @@ export default function HabitsPage() {
   const store = useStore();
   const [showAdd, setShowAdd] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
-  const [form, setForm] = useState({ name: '', icon: '⭐', color: 'orange' as typeof COLORS[number] });
+  const [form, setForm] = useState({ name: '', icon: 'Dumbbell', color: 'orange' as typeof COLORS[number] });
   const weekDays = currentWeekDays();
   const todayStr = todayKey();
 
@@ -51,23 +52,23 @@ export default function HabitsPage() {
     };
     store.addHabit(habit);
     setShowAdd(false);
-    setForm({ name: '', icon: '⭐', color: 'orange' });
+    setForm({ name: '', icon: 'Dumbbell', color: 'orange' });
   }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">Habits ✅</h1>
+          <h1 className="text-3xl font-black text-gray-900">Habits</h1>
           <p className="text-gray-400 text-sm font-medium mt-0.5">Build the streak, become the person</p>
         </div>
         <button onClick={() => setShowAdd(true)} className="btn-primary">+ Habit</button>
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <StatCard label="Today" value={`${completedToday}/${store.habits.length}`} subtitle="done" emoji="✅" color="green" compact />
-        <StatCard label="Weekly" value={`${Math.round(avgRate * 100)}%`} subtitle="rate" emoji="📈" color="purple" compact />
-        <StatCard label="Streak" value={`${bestStreak}`} subtitle="days" emoji="🔥" color="orange" compact />
+        <StatCard label="Today" value={`${completedToday}/${store.habits.length}`} subtitle="done" icon={<CheckSquare size={14} />} color="green" compact />
+        <StatCard label="Weekly" value={`${Math.round(avgRate * 100)}%`} subtitle="rate" icon={<TrendingUp size={14} />} color="purple" compact />
+        <StatCard label="Streak" value={`${bestStreak}`} subtitle="days" icon={<Flame size={14} />} color="orange" compact />
       </div>
 
       {store.habits.length > 0 && (
@@ -98,14 +99,14 @@ export default function HabitsPage() {
                         done ? `${colorCls.bg} text-white shadow-sm` : 'bg-white border-2 border-gray-200'
                       }`}
                     >
-                      {done && <span className="text-xs font-bold">✓</span>}
+                      {done && <Check size={14} />}
                     </button>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className="text-sm">{habit.icon}</span>
+                        <HabitIcon name={habit.icon} size={14} />
                         <span className={`font-semibold text-sm truncate ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
-                        {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0">🔥{streak}</span>}
+                        {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0 flex items-center gap-0.5"><Flame size={10} />{streak}</span>}
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">{Math.round(rate * 100)}% this week</div>
                     </div>
@@ -129,7 +130,7 @@ export default function HabitsPage() {
                                   : 'bg-gray-100'
                               }`}
                             >
-                              {completed && <span className="text-[9px] font-bold text-white">✓</span>}
+                              {completed && <Check size={9} />}
                             </div>
                           );
                         })}
@@ -138,9 +139,9 @@ export default function HabitsPage() {
 
                     <button
                       onClick={() => setDeleteConfirm(confirming ? null : habit.id)}
-                      className="text-gray-300 hover:text-red-400 flex-shrink-0 text-sm leading-none transition-colors"
+                      className="text-gray-300 hover:text-red-400 flex-shrink-0 leading-none transition-colors"
                     >
-                      ⋯
+                      <MoreHorizontal size={16} />
                     </button>
                   </div>
 
@@ -162,7 +163,7 @@ export default function HabitsPage() {
 
       {store.habits.length === 0 && (
         <div className="card text-center py-12">
-          <div className="text-5xl mb-3">✅</div>
+          <CheckSquare size={48} className="mx-auto text-gray-200 mb-3" />
           <p className="font-semibold text-gray-500">No habits yet</p>
           <p className="text-sm text-gray-400 mt-1">Add your first habit to start building streaks</p>
         </div>
@@ -180,10 +181,10 @@ export default function HabitsPage() {
               <div>
                 <label className="label mb-2 block">Icon</label>
                 <div className="flex flex-wrap gap-2">
-                  {ICONS.map(icon => (
-                    <button key={icon} onClick={() => setForm(f => ({ ...f, icon }))}
-                      className={`w-10 h-10 rounded-xl text-xl flex items-center justify-center transition-all ${form.icon === icon ? 'bg-blue-100 ring-2 ring-blue-500 scale-110' : 'bg-gray-100 hover:bg-gray-200'}`}>
-                      {icon}
+                  {HABIT_ICONS.map(({ name, Icon }) => (
+                    <button key={name} onClick={() => setForm(f => ({ ...f, icon: name }))}
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${form.icon === name ? 'bg-blue-100 ring-2 ring-blue-500 scale-110 text-blue-600' : 'bg-gray-100 hover:bg-gray-200 text-gray-600'}`}>
+                      <Icon size={18} />
                     </button>
                   ))}
                 </div>

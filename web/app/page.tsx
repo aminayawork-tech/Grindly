@@ -3,14 +3,27 @@
 import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Goal, GoalEntry } from '@/lib/types';
-import { categoryColor, categoryIcon, nanoid, formatDate, dateKey } from '@/lib/utils';
+import { categoryColor, nanoid, formatDate, dateKey } from '@/lib/utils';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
+import { Dumbbell, Scale, DollarSign, Heart, Pill, Star, Target, Flame, Utensils, CheckSquare, TrendingUp, Check, Circle, ArrowRight } from 'lucide-react';
 
 const COLOR_RING: Record<string, string> = {
   orange: '#F97316', blue: '#2563EB', green: '#16A34A',
   pink: '#DB2777', purple: '#7C3AED', indigo: '#4F46E5',
 };
+
+function getCategoryIcon(category: string) {
+  switch (category) {
+    case 'fitness': return <Dumbbell size={22} />;
+    case 'weight': return <Scale size={22} />;
+    case 'financial': return <DollarSign size={22} />;
+    case 'relationship': return <Heart size={22} />;
+    case 'health': return <Pill size={22} />;
+    case 'custom': return <Star size={22} />;
+    default: return <Target size={22} />;
+  }
+}
 
 function progressPct(goal: Goal) {
   if (goal.category === 'weight') {
@@ -22,7 +35,7 @@ function progressPct(goal: Goal) {
 }
 
 function statusMessage(pct: number) {
-  if (pct >= 1) return 'Goal Achieved! 🏆';
+  if (pct >= 1) return 'Goal Achieved!';
   if (pct >= 0.75) return 'Almost there! Keep pushing!';
   if (pct >= 0.5) return 'Halfway there — stay consistent!';
   if (pct >= 0.25) return 'Building momentum, don\'t stop!';
@@ -111,7 +124,7 @@ export default function GoalsDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-gray-900">Grindly ⚡</h1>
+          <h1 className="text-3xl font-black text-gray-900">Grindly</h1>
           <p className="text-gray-400 text-sm font-medium mt-0.5">Your personal growth dashboard</p>
         </div>
         <button onClick={() => setShowAdd(true)} className="btn-primary flex items-center gap-2">
@@ -120,10 +133,10 @@ export default function GoalsDashboard() {
       </div>
 
       <div className="grid grid-cols-2 gap-2">
-        <StatCard label="Workouts" value={`${store.weeklyWorkoutCount()}`} subtitle="this week" emoji="🔥" color="orange" compact />
-        <StatCard label="Calories" value={`${Math.round(store.todayCalories())}`} subtitle="today" emoji="🍽️" color="green" compact />
-        <StatCard label="Weight" value={`${store.weightTrendData().current.toFixed(1)} lbs`} subtitle="current" emoji="⚖️" color="blue" compact />
-        <StatCard label="Habits" value={`${Math.round(avgHabit * 100)}%`} subtitle="weekly" emoji="✅" color="purple" compact />
+        <StatCard label="Workouts" value={`${store.weeklyWorkoutCount()}`} subtitle="this week" icon={<Flame size={14} />} color="orange" compact />
+        <StatCard label="Calories" value={`${Math.round(store.todayCalories())}`} subtitle="today" icon={<Utensils size={14} />} color="green" compact />
+        <StatCard label="Weight" value={`${store.weightTrendData().current.toFixed(1)} lbs`} subtitle="current" icon={<Scale size={14} />} color="blue" compact />
+        <StatCard label="Habits" value={`${Math.round(avgHabit * 100)}%`} subtitle="weekly" icon={<CheckSquare size={14} />} color="purple" compact />
       </div>
 
       <div>
@@ -137,8 +150,8 @@ export default function GoalsDashboard() {
             return (
               <div key={goal.id} className="card hover:shadow-md transition-shadow cursor-pointer" onClick={() => openLog(goal)}>
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl bg-${color}-50 flex-shrink-0`}>
-                    {categoryIcon(goal.category)}
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 flex-shrink-0 text-${color}-500`}>
+                    {getCategoryIcon(goal.category)}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
@@ -149,7 +162,7 @@ export default function GoalsDashboard() {
                       <ProgressRing progress={pct} size={56} strokeWidth={5} color={ringColor} />
                     </div>
                     {lastEntry?.note && (
-                      <p className="text-xs text-gray-400 mt-2 italic line-clamp-1">📝 {lastEntry.note}</p>
+                      <p className="text-xs text-gray-400 mt-2 italic line-clamp-1">{lastEntry.note}</p>
                     )}
                     {goal.motivationalMessage && !lastEntry?.note && (
                       <p className="text-sm text-gray-500 italic mt-2 line-clamp-1">&ldquo;{goal.motivationalMessage}&rdquo;</p>
@@ -162,13 +175,13 @@ export default function GoalsDashboard() {
                             : goal.progressValue >= m.value;
                           return (
                             <span key={m.id} className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${achieved ? `bg-${color}-100 text-${color}-700` : 'bg-gray-100 text-gray-400'}`}>
-                              {achieved ? '✓' : '○'} {m.title}
+                              {achieved ? <Check size={10} /> : <Circle size={10} />} {m.title}
                             </span>
                           );
                         })}
                       </div>
                     )}
-                    <div className="mt-2 text-xs text-blue-500 font-semibold">Tap to log activity →</div>
+                    <div className="mt-2 text-xs text-blue-500 font-semibold flex items-center gap-1">Tap to log activity <ArrowRight size={10} /></div>
                   </div>
                 </div>
               </div>
@@ -182,7 +195,7 @@ export default function GoalsDashboard() {
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
             <div className="p-6 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{categoryIcon(editGoal.category)}</span>
+                <span className="text-2xl">{getCategoryIcon(editGoal.category)}</span>
                 <div>
                   <h2 className="text-xl font-bold">{editGoal.title}</h2>
                   <p className="text-sm text-gray-400">Log today&apos;s activity</p>
