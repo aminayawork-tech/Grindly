@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useStore } from '@/lib/store';
 import { FoodEntry, MealType } from '@/lib/types';
 import { nanoid } from '@/lib/utils';
-import { Sunrise, Sun, Moon, Leaf, BarChart3, Search, Utensils, X } from 'lucide-react';
+import { Sunrise, Sun, Moon, Leaf, BarChart3, Search, Utensils, X, PenLine } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 
 const MEALS: { id: MealType; label: string; Icon: LucideIcon }[] = [
@@ -25,6 +25,8 @@ interface FoodResult {
   nf_total_fat: number;
 }
 
+const emptyManual = { name: '', calories: '', protein: '', carbs: '', fat: '', serving: '' };
+
 export default function CaloriesPage() {
   const store = useStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -32,7 +34,9 @@ export default function CaloriesPage() {
   const [searching, setSearching] = useState(false);
   const [selectedMeal, setSelectedMeal] = useState<MealType>('breakfast');
   const [showSearch, setShowSearch] = useState(false);
+  const [tab, setTab] = useState<'search' | 'manual'>('search');
   const [addedFeedback, setAddedFeedback] = useState<string | null>(null);
+  const [manual, setManual] = useState(emptyManual);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const todayEntries = store.todayFoodEntries();
@@ -52,25 +56,63 @@ export default function CaloriesPage() {
       setSearching(true);
       try {
         const headers: Record<string, string> = {};
-        if (store.settings.fatSecretClientId) {
-          headers['x-fatsecret-client-id'] = store.settings.fatSecretClientId;
-          headers['x-fatsecret-client-secret'] = store.settings.fatSecretClientSecret;
-        }
-        const res = await fetch(`/api/fatsecret/search?q=${encodeURIComponent(searchQuery)}`, { headers });
+        if (store.settings.usdaApiKey) headers['x-usda-api-key'] = store.settings.usdaApiKey;
+        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(searchQuery)}`, { headers });
         const data = await res.json();
         setResults((data.foods ?? []).slice(0, 20));
       } catch { setResults([]); }
       setSearching(false);
     }, 400);
-  }, [searchQuery, store.settings.fatSecretClientId, store.settings.fatSecretClientSecret]);
+  }, [searchQuery, store.settings.usdaApiKey]);
 
   function addFood(food: FoodResult) {
-    const entry: FoodEntry = { id: nanoid(), foodName: food.food_name.charAt(0).toUpperCase() + food.food_name.slice(1), brandName: food.brand_name ?? '', calories: food.nf_calories, protein: food.nf_protein, carbs: food.nf_total_carbohydrate, fat: food.nf_total_fat, servingQty: food.serving_qty, servingUnit: food.serving_unit, mealType: selectedMeal, loggedAt: new Date().toISOString() };
+    const entry: FoodEntry = {
+      id: nanoid(),
+      foodName: food.food_name.charAt(0).toUpperCase() + food.food_name.slice(1),
+      brandName: food.brand_name ?? '',
+      calories: food.nf_calories,
+      protein: food.nf_protein,
+      carbs: food.nf_total_carbohydrate,
+      fat: food.nf_total_fat,
+      servingQty: food.serving_qty,
+      servingUnit: food.serving_unit,
+      mealType: selectedMeal,
+      loggedAt: new Date().toISOString(),
+    };
     store.addFoodEntry(entry);
     setAddedFeedback(food.food_name);
     setTimeout(() => setAddedFeedback(null), 2000);
     setSearchQuery('');
     setResults([]);
+  }
+
+  function addManual() {
+    if (!manual.name.trim() || !manual.calories) return;
+    const entry: FoodEntry = {
+      id: nanoid(),
+      foodName: manual.name.trim(),
+      brandName: '',
+      calories: parseFloat(manual.calories) || 0,
+      protein: parseFloat(manual.protein) || 0,
+      carbs: parseFloat(manual.carbs) || 0,
+      fat: parseFloat(manual.fat) || 0,
+      servingQty: 1,
+      servingUnit: manual.serving.trim() || 'serving',
+      mealType: selectedMeal,
+      loggedAt: new Date().toISOString(),
+    };
+    store.addFoodEntry(entry);
+    setAddedFeedback(manual.name.trim());
+    setTimeout(() => setAddedFeedback(null), 2000);
+    setManual(emptyManual);
+  }
+
+  function closeModal() {
+    setShowSearch(false);
+    setSearchQuery('');
+    setResults([]);
+    setManual(emptyManual);
+    setTab('search');
   }
 
   const barColor = progress > 1.05 ? 'bg-red-500' : progress > 0.9 ? 'bg-orange-400' : 'bg-green-500';
@@ -170,8 +212,9 @@ export default function CaloriesPage() {
             <div className="p-5 border-b border-gray-100">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xl font-bold">Add Food</h2>
-                <button onClick={() => { setShowSearch(false); setSearchQuery(''); setResults([]); }} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
+                <button onClick={closeModal} className="text-gray-400 hover:text-gray-600"><X size={20} /></button>
               </div>
+
               <div className="flex gap-2 mb-3 overflow-x-auto">
                 {MEALS.map(m => (
                   <button key={m.id} onClick={() => setSelectedMeal(m.id)}
@@ -180,40 +223,92 @@ export default function CaloriesPage() {
                   </button>
                 ))}
               </div>
-              <div className="relative">
-                <Search size={16} className="absolute left-3 top-3.5 text-gray-400" />
-                <input autoFocus className="input pl-9" placeholder="Search any food..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-              </div>
-            </div>
-            <div className="flex-1 overflow-y-auto">
-              {addedFeedback && <div className="mx-4 mt-3 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-semibold flex items-center gap-2">✓ Added {addedFeedback}</div>}
-              {searching && <div className="p-6 text-center text-gray-400">Searching...</div>}
-              {!searching && results.length === 0 && searchQuery.length >= 2 && (
-                <div className="p-6 text-center text-gray-400">
-                  <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Utensils size={28} className="text-gray-300" /></div>
-                  <p className="font-medium">No results for &ldquo;{searchQuery}&rdquo;</p>
-                  <p className="text-xs mt-2 text-orange-500">Add FatSecret credentials in Settings to enable food search</p>
-                </div>
-              )}
-              {!searching && results.length === 0 && searchQuery.length < 2 && (
-                <div className="p-8 text-center text-gray-300">
-                  <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Leaf size={28} className="text-gray-300" /></div>
-                  <p className="font-medium">Type to search any food</p>
-                </div>
-              )}
-              {results.map((food, i) => (
-                <button key={i} onClick={() => addFood(food)} className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-50 last:border-0">
-                  <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0"><Leaf size={18} className="text-green-500" /></div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 text-sm truncate capitalize">{food.food_name}</div>
-                    <div className="text-xs text-gray-400">{food.serving_qty} {food.serving_unit}{food.brand_name ? ` · ${food.brand_name}` : ''}</div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="font-bold text-gray-900 tabular-nums">{Math.round(food.nf_calories)}</div>
-                    <div className="text-xs text-gray-400">kcal</div>
-                  </div>
+
+              <div className="flex bg-gray-100 rounded-xl p-1 gap-1">
+                <button onClick={() => setTab('search')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'search' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}>
+                  <Search size={13} /> Search
                 </button>
-              ))}
+                <button onClick={() => setTab('manual')} className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-sm font-semibold transition-all ${tab === 'manual' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500'}`}>
+                  <PenLine size={13} /> Manual
+                </button>
+              </div>
+
+              {tab === 'search' && (
+                <div className="relative mt-3">
+                  <Search size={16} className="absolute left-3 top-3.5 text-gray-400" />
+                  <input autoFocus className="input pl-9" placeholder="Search any food..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto">
+              {addedFeedback && <div className="mx-4 mt-3 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-semibold">✓ Added {addedFeedback}</div>}
+
+              {tab === 'search' && (
+                <>
+                  {searching && <div className="p-6 text-center text-gray-400">Searching...</div>}
+                  {!searching && results.length === 0 && searchQuery.length >= 2 && (
+                    <div className="p-6 text-center text-gray-400">
+                      <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Utensils size={28} className="text-gray-300" /></div>
+                      <p className="font-medium">No results for &ldquo;{searchQuery}&rdquo;</p>
+                      <p className="text-xs mt-2 text-gray-400">Try Manual entry or add a USDA API key in Settings</p>
+                    </div>
+                  )}
+                  {!searching && results.length === 0 && searchQuery.length < 2 && (
+                    <div className="p-8 text-center text-gray-300">
+                      <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Leaf size={28} className="text-gray-300" /></div>
+                      <p className="font-medium">Type to search any food</p>
+                    </div>
+                  )}
+                  {results.map((food, i) => (
+                    <button key={i} onClick={() => addFood(food)} className="w-full flex items-center gap-3 px-5 py-3.5 hover:bg-gray-50 transition-colors text-left border-b border-gray-50 last:border-0">
+                      <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0"><Leaf size={18} className="text-green-500" /></div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-gray-900 text-sm truncate">{food.food_name}</div>
+                        <div className="text-xs text-gray-400">{food.serving_qty} {food.serving_unit}{food.brand_name ? ` · ${food.brand_name}` : ''}</div>
+                      </div>
+                      <div className="text-right flex-shrink-0">
+                        <div className="font-bold text-gray-900 tabular-nums">{Math.round(food.nf_calories)}</div>
+                        <div className="text-xs text-gray-400">kcal</div>
+                      </div>
+                    </button>
+                  ))}
+                </>
+              )}
+
+              {tab === 'manual' && (
+                <div className="p-5 space-y-4">
+                  <div>
+                    <label className="label mb-1 block">Food Name</label>
+                    <input autoFocus className="input" placeholder="e.g. Grilled chicken breast" value={manual.name} onChange={e => setManual(m => ({ ...m, name: e.target.value }))} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="label mb-1 block">Calories <span className="text-red-400">*</span></label>
+                      <input className="input" type="number" placeholder="250" value={manual.calories} onChange={e => setManual(m => ({ ...m, calories: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="label mb-1 block">Serving</label>
+                      <input className="input" placeholder="1 cup" value={manual.serving} onChange={e => setManual(m => ({ ...m, serving: e.target.value }))} />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div>
+                      <label className="label mb-1 block">Protein (g)</label>
+                      <input className="input" type="number" placeholder="30" value={manual.protein} onChange={e => setManual(m => ({ ...m, protein: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="label mb-1 block">Carbs (g)</label>
+                      <input className="input" type="number" placeholder="20" value={manual.carbs} onChange={e => setManual(m => ({ ...m, carbs: e.target.value }))} />
+                    </div>
+                    <div>
+                      <label className="label mb-1 block">Fat (g)</label>
+                      <input className="input" type="number" placeholder="8" value={manual.fat} onChange={e => setManual(m => ({ ...m, fat: e.target.value }))} />
+                    </div>
+                  </div>
+                  <button onClick={addManual} disabled={!manual.name.trim() || !manual.calories} className="w-full btn-primary py-3">Add to {MEALS.find(m => m.id === selectedMeal)?.label}</button>
+                </div>
+              )}
             </div>
           </div>
         </div>

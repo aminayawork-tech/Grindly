@@ -11,8 +11,7 @@ export default function SettingsPage() {
     startWeight: '',
     goalWeight: '',
     anthropicApiKey: '',
-    fatSecretClientId: '',
-    fatSecretClientSecret: '',
+    usdaApiKey: '',
   });
 
   useEffect(() => {
@@ -21,8 +20,7 @@ export default function SettingsPage() {
       startWeight: String(store.settings.startWeight),
       goalWeight: String(store.settings.goalWeight),
       anthropicApiKey: store.settings.anthropicApiKey,
-      fatSecretClientId: store.settings.fatSecretClientId,
-      fatSecretClientSecret: store.settings.fatSecretClientSecret,
+      usdaApiKey: store.settings.usdaApiKey ?? '',
     });
   }, [store.settings]);
 
@@ -32,8 +30,7 @@ export default function SettingsPage() {
       startWeight: parseFloat(form.startWeight) || 180,
       goalWeight: parseFloat(form.goalWeight) || 160,
       anthropicApiKey: form.anthropicApiKey.trim(),
-      fatSecretClientId: form.fatSecretClientId.trim(),
-      fatSecretClientSecret: form.fatSecretClientSecret.trim(),
+      usdaApiKey: form.usdaApiKey.trim(),
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -99,15 +96,11 @@ export default function SettingsPage() {
         </div>
         <div className="pt-2 border-t border-gray-100" />
         <div className="p-3 bg-green-50 rounded-xl text-sm text-green-700">
-          <strong>FatSecret Platform</strong> — powers food search in Calories. Free tier at <span className="font-mono">platform.fatsecret.com</span> — paste your OAuth 2.0 Client ID and Secret below.
+          <strong>USDA FoodData Central</strong> — powers food search in Calories. Free — get a key at <span className="font-mono">fdc.nal.usda.gov</span> (optional, works without one but rate-limited).
         </div>
         <div>
-          <label className="label mb-1 block">FatSecret Client ID</label>
-          <input className="input font-mono text-xs" placeholder="your client ID" {...f('fatSecretClientId')} />
-        </div>
-        <div>
-          <label className="label mb-1 block">FatSecret Client Secret</label>
-          <input className="input font-mono text-xs" type="password" placeholder="your client secret" {...f('fatSecretClientSecret')} />
+          <label className="label mb-1 block">USDA API Key <span className="text-gray-400 font-normal">(optional)</span></label>
+          <input className="input font-mono text-xs" type="password" placeholder="your USDA FDC API key" {...f('usdaApiKey')} />
         </div>
       </div>
 

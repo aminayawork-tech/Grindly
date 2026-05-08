@@ -101,8 +101,7 @@ export interface AppSettings {
   goalWeight: number;
   weightGoalDate?: string;
   anthropicApiKey: string;
-  fatSecretClientId: string;
-  fatSecretClientSecret: string;
+  usdaApiKey: string;
 }
 
 export interface WeeklyReport {
