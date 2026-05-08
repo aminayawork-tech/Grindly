@@ -20,9 +20,9 @@ interface FoodResult {
   serving_qty: number;
   serving_unit: string;
   nf_calories: number;
-  nf_protein?: number;
-  nf_total_carbohydrate?: number;
-  nf_total_fat?: number;
+  nf_protein: number;
+  nf_total_carbohydrate: number;
+  nf_total_fat: number;
 }
 
 export default function CaloriesPage() {
@@ -51,16 +51,18 @@ export default function CaloriesPage() {
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
       try {
-        const res = await fetch(`/api/nutritionix/search?q=${encodeURIComponent(searchQuery)}`, { headers: { 'x-nutritionix-app-id': store.settings.nutritionixAppId, 'x-nutritionix-app-key': store.settings.nutritionixAppKey } });
+        const headers: Record<string, string> = {};
+        if (store.settings.usdaApiKey) headers['x-usda-api-key'] = store.settings.usdaApiKey;
+        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(searchQuery)}`, { headers });
         const data = await res.json();
-        setResults([...(data.common ?? []), ...(data.branded ?? [])].slice(0, 15));
+        setResults((data.foods ?? []).slice(0, 20));
       } catch { setResults([]); }
       setSearching(false);
     }, 400);
-  }, [searchQuery, store.settings.nutritionixAppId, store.settings.nutritionixAppKey]);
+  }, [searchQuery, store.settings.usdaApiKey]);
 
   function addFood(food: FoodResult) {
-    const entry: FoodEntry = { id: nanoid(), foodName: food.food_name.charAt(0).toUpperCase() + food.food_name.slice(1), brandName: food.brand_name ?? '', calories: food.nf_calories, protein: food.nf_protein ?? 0, carbs: food.nf_total_carbohydrate ?? 0, fat: food.nf_total_fat ?? 0, servingQty: food.serving_qty, servingUnit: food.serving_unit, mealType: selectedMeal, loggedAt: new Date().toISOString() };
+    const entry: FoodEntry = { id: nanoid(), foodName: food.food_name.charAt(0).toUpperCase() + food.food_name.slice(1), brandName: food.brand_name ?? '', calories: food.nf_calories, protein: food.nf_protein, carbs: food.nf_total_carbohydrate, fat: food.nf_total_fat, servingQty: food.serving_qty, servingUnit: food.serving_unit, mealType: selectedMeal, loggedAt: new Date().toISOString() };
     store.addFoodEntry(entry);
     setAddedFeedback(food.food_name);
     setTimeout(() => setAddedFeedback(null), 2000);
@@ -187,7 +189,7 @@ export default function CaloriesPage() {
                 <div className="p-6 text-center text-gray-400">
                   <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Utensils size={28} className="text-gray-300" /></div>
                   <p className="font-medium">No results for &ldquo;{searchQuery}&rdquo;</p>
-                  {!process.env.NUTRITIONIX_APP_ID && <p className="text-xs mt-2 text-orange-500">Add Nutritionix API keys in Settings to enable food search</p>}
+                  <p className="text-xs mt-2 text-orange-500">Add a USDA API key in Settings for better search results</p>
                 </div>
               )}
               {!searching && results.length === 0 && searchQuery.length < 2 && (

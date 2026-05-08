@@ -11,8 +11,7 @@ export default function SettingsPage() {
     startWeight: '',
     goalWeight: '',
     anthropicApiKey: '',
-    nutritionixAppId: '',
-    nutritionixAppKey: '',
+    usdaApiKey: '',
   });
 
   useEffect(() => {
@@ -21,8 +20,7 @@ export default function SettingsPage() {
       startWeight: String(store.settings.startWeight),
       goalWeight: String(store.settings.goalWeight),
       anthropicApiKey: store.settings.anthropicApiKey,
-      nutritionixAppId: store.settings.nutritionixAppId,
-      nutritionixAppKey: store.settings.nutritionixAppKey,
+      usdaApiKey: store.settings.usdaApiKey,
     });
   }, [store.settings]);
 
@@ -32,8 +30,7 @@ export default function SettingsPage() {
       startWeight: parseFloat(form.startWeight) || 180,
       goalWeight: parseFloat(form.goalWeight) || 160,
       anthropicApiKey: form.anthropicApiKey.trim(),
-      nutritionixAppId: form.nutritionixAppId.trim(),
-      nutritionixAppKey: form.nutritionixAppKey.trim(),
+      usdaApiKey: form.usdaApiKey.trim(),
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
@@ -99,15 +96,11 @@ export default function SettingsPage() {
         </div>
         <div className="pt-2 border-t border-gray-100" />
         <div className="p-3 bg-green-50 rounded-xl text-sm text-green-700">
-          <strong>Nutritionix</strong> — enables the food search in Calories. Free tier available at <span className="font-mono">developer.nutritionix.com</span>
+          <strong>USDA FoodData Central</strong> — powers food search in Calories. Free — register at <span className="font-mono">fdc.nal.usda.gov</span> for a key (works without one, but rate-limited).
         </div>
         <div>
-          <label className="label mb-1 block">Nutritionix App ID</label>
-          <input className="input font-mono text-xs" placeholder="a1b2c3d4" {...f('nutritionixAppId')} />
-        </div>
-        <div>
-          <label className="label mb-1 block">Nutritionix App Key</label>
-          <input className="input font-mono text-xs" type="password" placeholder="your app key" {...f('nutritionixAppKey')} />
+          <label className="label mb-1 block">USDA API Key <span className="text-gray-400 font-normal">(optional)</span></label>
+          <input className="input font-mono text-xs" type="password" placeholder="your USDA FDC API key" {...f('usdaApiKey')} />
         </div>
       </div>
 

@@ -102,6 +102,5 @@ export const defaultSettings: AppSettings = {
   startWeight: 180,
   goalWeight: 160,
   anthropicApiKey: '',
-  nutritionixAppId: '',
-  nutritionixAppKey: '',
+  usdaApiKey: '',
 };
