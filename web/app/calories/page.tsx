@@ -52,14 +52,17 @@ export default function CaloriesPage() {
       setSearching(true);
       try {
         const headers: Record<string, string> = {};
-        if (store.settings.usdaApiKey) headers['x-usda-api-key'] = store.settings.usdaApiKey;
-        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(searchQuery)}`, { headers });
+        if (store.settings.fatSecretClientId) {
+          headers['x-fatsecret-client-id'] = store.settings.fatSecretClientId;
+          headers['x-fatsecret-client-secret'] = store.settings.fatSecretClientSecret;
+        }
+        const res = await fetch(`/api/fatsecret/search?q=${encodeURIComponent(searchQuery)}`, { headers });
         const data = await res.json();
         setResults((data.foods ?? []).slice(0, 20));
       } catch { setResults([]); }
       setSearching(false);
     }, 400);
-  }, [searchQuery, store.settings.usdaApiKey]);
+  }, [searchQuery, store.settings.fatSecretClientId, store.settings.fatSecretClientSecret]);
 
   function addFood(food: FoodResult) {
     const entry: FoodEntry = { id: nanoid(), foodName: food.food_name.charAt(0).toUpperCase() + food.food_name.slice(1), brandName: food.brand_name ?? '', calories: food.nf_calories, protein: food.nf_protein, carbs: food.nf_total_carbohydrate, fat: food.nf_total_fat, servingQty: food.serving_qty, servingUnit: food.serving_unit, mealType: selectedMeal, loggedAt: new Date().toISOString() };
@@ -189,7 +192,7 @@ export default function CaloriesPage() {
                 <div className="p-6 text-center text-gray-400">
                   <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Utensils size={28} className="text-gray-300" /></div>
                   <p className="font-medium">No results for &ldquo;{searchQuery}&rdquo;</p>
-                  <p className="text-xs mt-2 text-orange-500">Add a USDA API key in Settings for better search results</p>
+                  <p className="text-xs mt-2 text-orange-500">Add FatSecret credentials in Settings to enable food search</p>
                 </div>
               )}
               {!searching && results.length === 0 && searchQuery.length < 2 && (

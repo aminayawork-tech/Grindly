@@ -102,5 +102,6 @@ export const defaultSettings: AppSettings = {
   startWeight: 180,
   goalWeight: 160,
   anthropicApiKey: '',
-  usdaApiKey: '',
+  fatSecretClientId: '',
+  fatSecretClientSecret: '',
 };
