@@ -1,28 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Module-level token cache — survives warm requests, resets on cold start
-let tokenCache: { token: string; expiresAt: number } | null = null;
+let tokenCache: { token: string; expiresAt: number; clientId: string } | null = null;
 
 async function getAccessToken(clientId: string, clientSecret: string): Promise<string> {
-  if (tokenCache && tokenCache.expiresAt > Date.now()) return tokenCache.token;
+  if (tokenCache && tokenCache.clientId === clientId && tokenCache.expiresAt > Date.now()) {
+    return tokenCache.token;
+  }
   const creds = Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   const res = await fetch('https://oauth.fatsecret.com/connect/token', {
     method: 'POST',
-    headers: { Authorization: `Basic ${creds}`, 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers: {
+      Authorization: `Basic ${creds}`,
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
     body: 'grant_type=client_credentials&scope=basic',
+    cache: 'no-store',
   });
-  const data = await res.json();
-  tokenCache = { token: data.access_token, expiresAt: Date.now() + (data.expires_in - 60) * 1000 };
+  const text = await res.text();
+  let data: Record<string, unknown>;
+  try { data = JSON.parse(text); } catch { throw new Error(`Token endpoint non-JSON: ${text.slice(0, 200)}`); }
+  if (!data.access_token) throw new Error(`Auth failed: ${text.slice(0, 300)}`);
+  tokenCache = {
+    token: data.access_token as string,
+    expiresAt: Date.now() + (((data.expires_in as number) ?? 86400) - 60) * 1000,
+    clientId,
+  };
   return tokenCache.token;
 }
 
 // Parses "Per 100g - Calories: 165kcal | Fat: 3.57g | Carbs: 0.00g | Protein: 31.02g"
 function parseDescription(desc: string) {
-  const cal = parseFloat(desc.match(/Calories:\s*([\d.]+)/)?.[1] ?? '0');
-  const fat = parseFloat(desc.match(/Fat:\s*([\d.]+)/)?.[1] ?? '0');
-  const carbs = parseFloat(desc.match(/Carbs:\s*([\d.]+)/)?.[1] ?? '0');
-  const protein = parseFloat(desc.match(/Protein:\s*([\d.]+)/)?.[1] ?? '0');
-  const serving = desc.match(/^Per\s+([^-]+)/)?.[1]?.trim() ?? '100g';
+  const cal = parseFloat(desc.match(/Calories:\s*([\d.]+)/i)?.[1] ?? '0');
+  const fat = parseFloat(desc.match(/Fat:\s*([\d.]+)/i)?.[1] ?? '0');
+  const carbs = parseFloat(desc.match(/Carbs:\s*([\d.]+)/i)?.[1] ?? '0');
+  const protein = parseFloat(desc.match(/Protein:\s*([\d.]+)/i)?.[1] ?? '0');
+  const serving = desc.match(/^Per\s+([^-–]+)/)?.[1]?.trim() ?? '100g';
   return { cal, fat, carbs, protein, serving };
 }
 
@@ -34,20 +46,33 @@ export async function GET(req: NextRequest) {
   const clientSecret = process.env.FATSECRET_CLIENT_SECRET ?? req.headers.get('x-fatsecret-client-secret') ?? '';
 
   if (!clientId || !clientSecret) {
-    return NextResponse.json({ error: 'FatSecret credentials not configured', foods: [] });
+    return NextResponse.json({ error: 'Add your FatSecret Client ID and Secret in Settings', foods: [] });
+  }
+
+  let token: string;
+  try {
+    token = await getAccessToken(clientId, clientSecret);
+  } catch (err) {
+    console.error('[fatsecret] token error:', err);
+    return NextResponse.json({ error: `Auth error — check your credentials (${String(err)})`, foods: [] });
   }
 
   try {
-    const token = await getAccessToken(clientId, clientSecret);
     const res = await fetch(
       `https://platform.fatsecret.com/rest/server.api?method=foods.search&search_expression=${encodeURIComponent(query)}&format=json&max_results=25`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      { headers: { Authorization: `Bearer ${token}` }, cache: 'no-store' }
     );
-    const data = await res.json();
-    const raw = data.foods?.food ?? [];
+    const text = await res.text();
+    let data: Record<string, unknown>;
+    try { data = JSON.parse(text); } catch { throw new Error(`Search non-JSON: ${text.slice(0, 200)}`); }
+
+    const apiErr = data.error as { message?: string } | undefined;
+    if (apiErr?.message) return NextResponse.json({ error: apiErr.message, foods: [] });
+
+    const raw = (data.foods as { food?: unknown } | undefined)?.food ?? [];
     const list = Array.isArray(raw) ? raw : [raw];
-    const foods = list
-      .map((f: { food_name: string; brand_name?: string; food_description?: string }) => {
+    const foods = (list as { food_name: string; brand_name?: string; food_description?: string }[])
+      .map(f => {
         const { cal, fat, carbs, protein, serving } = parseDescription(f.food_description ?? '');
         return {
           food_name: f.food_name,
@@ -60,9 +85,11 @@ export async function GET(req: NextRequest) {
           nf_total_fat: fat,
         };
       })
-      .filter(f => f.nf_calories > 0);
+      .filter(f => !isNaN(f.nf_calories));
+
     return NextResponse.json({ foods });
-  } catch {
-    return NextResponse.json({ error: 'Search failed', foods: [] }, { status: 200 });
+  } catch (err) {
+    console.error('[fatsecret] search error:', err);
+    return NextResponse.json({ error: String(err), foods: [] });
   }
 }
