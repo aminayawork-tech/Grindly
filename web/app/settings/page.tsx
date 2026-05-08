@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useStore } from '@/lib/store';
-import { Check } from 'lucide-react';
 
 export default function SettingsPage() {
   const store = useStore();
@@ -54,11 +53,10 @@ export default function SettingsPage() {
 
       {saved && (
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-2">
-          <Check size={14} /> Settings saved
+          ✓ Settings saved
         </div>
       )}
 
-      {/* Goals */}
       <div className="card space-y-4">
         <h2 className="section-title">Personal Goals</h2>
         <div>
@@ -87,24 +85,19 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* API Keys */}
       <div className="card space-y-4">
         <div>
           <h2 className="section-title">API Keys</h2>
           <p className="text-sm text-gray-400 mt-1">Keys are stored locally in your browser only and never sent to our servers.</p>
         </div>
-
         <div className="p-3 bg-blue-50 rounded-xl text-sm text-blue-700">
-          <strong>Claude AI Coach</strong> — powers the AI life coach and weekly report analysis.
-          Get your key at <span className="font-mono">console.anthropic.com</span>
+          <strong>Claude AI Coach</strong> — powers the AI life coach and weekly report analysis. Get your key at <span className="font-mono">console.anthropic.com</span>
         </div>
         <div>
           <label className="label mb-1 block">Anthropic API Key</label>
           <input className="input font-mono text-xs" type="password" placeholder="sk-ant-..." {...f('anthropicApiKey')} />
         </div>
-
         <div className="pt-2 border-t border-gray-100" />
-
         <div className="p-3 bg-green-50 rounded-xl text-sm text-green-700">
           <strong>Nutritionix</strong> — enables the food search in Calories. Free tier available at <span className="font-mono">developer.nutritionix.com</span>
         </div>
@@ -118,27 +111,16 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      {/* Data */}
       <div className="card space-y-3">
         <h2 className="section-title">Data</h2>
         <p className="text-sm text-gray-500">All your data is stored locally in this browser. Clearing your browser data will delete everything.</p>
         <div className="flex gap-2 text-sm">
-          <div className="bg-gray-50 rounded-lg px-3 py-2">
-            <span className="text-gray-400">Workouts: </span>
-            <span className="font-semibold">{store.workouts.length}</span>
-          </div>
-          <div className="bg-gray-50 rounded-lg px-3 py-2">
-            <span className="text-gray-400">Food entries: </span>
-            <span className="font-semibold">{store.foodEntries.length}</span>
-          </div>
-          <div className="bg-gray-50 rounded-lg px-3 py-2">
-            <span className="text-gray-400">Weight logs: </span>
-            <span className="font-semibold">{store.weightEntries.length}</span>
-          </div>
+          <div className="bg-gray-50 rounded-lg px-3 py-2"><span className="text-gray-400">Workouts: </span><span className="font-semibold">{store.workouts.length}</span></div>
+          <div className="bg-gray-50 rounded-lg px-3 py-2"><span className="text-gray-400">Food entries: </span><span className="font-semibold">{store.foodEntries.length}</span></div>
+          <div className="bg-gray-50 rounded-lg px-3 py-2"><span className="text-gray-400">Weight logs: </span><span className="font-semibold">{store.weightEntries.length}</span></div>
         </div>
       </div>
 
-      {/* About */}
       <div className="card">
         <h2 className="section-title mb-3">About Grindly</h2>
         <div className="space-y-2 text-sm text-gray-600">
@@ -149,9 +131,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <button onClick={save} className="w-full btn-primary py-4 text-base">
-        Save Settings
-      </button>
+      <button onClick={save} className="w-full btn-primary py-4 text-base">Save Settings</button>
     </div>
   );
 }

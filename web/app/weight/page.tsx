@@ -5,9 +5,9 @@ import { useStore } from '@/lib/store';
 import { WeightEntry } from '@/lib/types';
 import { nanoid, formatDate, todayKey } from '@/lib/utils';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ReferenceLine, ResponsiveContainer, Area, AreaChart } from 'recharts';
+import { Trophy, TrendingDown, Target, Calendar, Scale, BarChart3 } from 'lucide-react';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
-import { Scale, TrendingDown, Target, Calendar, Trophy, BarChart3, Check } from 'lucide-react';
 
 export default function WeightPage() {
   const store = useStore();
@@ -63,7 +63,9 @@ export default function WeightPage() {
 
       {showMilestone && (
         <div className="card bg-gradient-to-r from-yellow-50 to-orange-50 border-orange-200 text-center py-6">
-          <Trophy size={48} className="mx-auto text-orange-400 mb-2" />
+          <div className="w-16 h-16 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-2">
+            <Trophy size={32} className="text-orange-500" />
+          </div>
           <div className="text-2xl font-black text-gray-900">Milestone Hit!</div>
           <div className="text-gray-600 mt-1">You hit {showMilestone} lbs — {Math.round(startWeight - showMilestone)} lbs down!</div>
           <button onClick={() => setShowMilestone(null)} className="mt-3 text-sm text-gray-400 hover:text-gray-600">Dismiss</button>
@@ -77,7 +79,7 @@ export default function WeightPage() {
           <div className="text-gray-400 font-medium">lbs</div>
           {trend.totalLost > 0 && (
             <div className="mt-2 inline-flex items-center gap-1.5 bg-blue-50 text-blue-700 text-sm font-semibold px-3 py-1.5 rounded-full">
-              <TrendingDown size={14} className="inline" /> {trend.totalLost.toFixed(1)} lbs lost
+              ↓ {trend.totalLost.toFixed(1)} lbs lost
             </div>
           )}
         </div>
@@ -85,45 +87,38 @@ export default function WeightPage() {
       </div>
 
       <div className="flex gap-3 overflow-x-auto pb-1">
-        <StatCard label="Weekly Rate" value={trend.weeklyRate > 0 ? `${trend.weeklyRate.toFixed(1)} lbs` : '--'} subtitle="per week" icon={<TrendingDown size={14} />} color="blue" />
-        <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" icon={<Target size={14} />} color="orange" />
+        <StatCard label="Weekly Rate" value={trend.weeklyRate > 0 ? `${trend.weeklyRate.toFixed(1)} lbs` : '--'} subtitle="per week" icon={<TrendingDown size={16} />} color="blue" />
+        <StatCard label="Remaining" value={`${trend.remaining.toFixed(1)} lbs`} subtitle="to goal" icon={<Target size={16} />} color="orange" />
       </div>
 
       <div className="card space-y-4">
         <div className="flex items-start gap-4">
-          <div className="text-blue-500"><Target size={24} /></div>
+          <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Target size={20} className="text-blue-600" />
+          </div>
           <div className="flex-1">
             <div className="label">Your Goal Date</div>
             {showDateEdit ? (
               <div className="flex items-center gap-2 mt-1">
-                <input
-                  type="date"
-                  className="input text-sm"
-                  value={goalDateInput}
-                  onChange={e => setGoalDateInput(e.target.value)}
-                />
+                <input type="date" className="input text-sm" value={goalDateInput} onChange={e => setGoalDateInput(e.target.value)} />
                 <button onClick={saveGoalDate} disabled={!goalDateInput} className="btn-primary px-3 py-2 text-sm">Set</button>
-                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 hover:text-gray-600 leading-none"><Check size={16} /></button>
+                <button onClick={() => setShowDateEdit(false)} className="text-gray-400 hover:text-gray-600 text-lg leading-none">✕</button>
               </div>
             ) : weightGoalDate ? (
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="font-bold text-gray-900">
-                  {new Date(weightGoalDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                </span>
+                <span className="font-bold text-gray-900">{new Date(weightGoalDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 <button onClick={() => { setGoalDateInput(weightGoalDate); setShowDateEdit(true); }} className="text-xs text-blue-500 font-semibold hover:underline">Edit</button>
               </div>
             ) : (
-              <button onClick={() => { setGoalDateInput(''); setShowDateEdit(true); }} className="text-sm text-blue-500 font-semibold mt-0.5 hover:underline">
-                + Set a target date
-              </button>
+              <button onClick={() => { setGoalDateInput(''); setShowDateEdit(true); }} className="text-sm text-blue-500 font-semibold mt-0.5 hover:underline">+ Set a target date</button>
             )}
           </div>
         </div>
-
         <div className="border-t border-gray-100" />
-
         <div className="flex items-start gap-4">
-          <div className="text-blue-500"><Calendar size={24} /></div>
+          <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <Calendar size={20} className="text-purple-600" />
+          </div>
           <div>
             <div className="label">Projected at Current Pace</div>
             {trend.projected ? (
@@ -139,10 +134,12 @@ export default function WeightPage() {
       </div>
 
       <div className="card">
-        <h2 className="section-title mb-4 flex items-center gap-2"><BarChart3 size={18} /> Progress Chart</h2>
+        <h2 className="section-title mb-4">Progress Chart</h2>
         {chartData.length < 2 ? (
           <div className="text-center py-10 text-gray-300">
-            <BarChart3 size={40} className="mx-auto text-gray-200 mb-2" />
+            <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2">
+              <BarChart3 size={32} className="text-gray-300" />
+            </div>
             <p className="font-medium">Log at least 2 weights to see your trend</p>
           </div>
         ) : (
@@ -156,10 +153,7 @@ export default function WeightPage() {
               </defs>
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
               <YAxis domain={[minY, maxY]} tick={{ fontSize: 11, fill: '#9CA3AF' }} tickLine={false} axisLine={false} />
-              <Tooltip
-                contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: 13 }}
-                formatter={(v: number) => [`${v.toFixed(1)} lbs`, 'Weight']}
-              />
+              <Tooltip contentStyle={{ borderRadius: 12, border: 'none', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', fontSize: 13 }} formatter={(v: number) => [`${v.toFixed(1)} lbs`, 'Weight']} />
               <ReferenceLine y={goalWeight} stroke="#F97316" strokeDasharray="4 4" strokeWidth={1.5} label={{ value: 'Goal', position: 'insideTopRight', fontSize: 11, fill: '#F97316' }} />
               <Area type="monotone" dataKey="weight" stroke="#2563EB" strokeWidth={2.5} fill="url(#weightGrad)" dot={{ fill: '#2563EB', r: 3 }} activeDot={{ r: 5 }} />
             </AreaChart>
@@ -171,7 +165,9 @@ export default function WeightPage() {
         <h2 className="section-title mb-3">Weight Log</h2>
         {sortedEntries.length === 0 ? (
           <div className="card text-center py-10 text-gray-300">
-            <Scale size={40} className="mx-auto text-gray-200 mb-2" />
+            <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2">
+              <Scale size={28} className="text-gray-300" />
+            </div>
             <p>No weight logged yet. Tap + Log to start.</p>
           </div>
         ) : (
