@@ -36,6 +36,7 @@ export default function CaloriesPage() {
   const [showSearch, setShowSearch] = useState(false);
   const [tab, setTab] = useState<'search' | 'manual'>('search');
   const [addedFeedback, setAddedFeedback] = useState<string | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
   const [manual, setManual] = useState(emptyManual);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -54,16 +55,21 @@ export default function CaloriesPage() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
+      setSearchError(null);
       try {
         const headers: Record<string, string> = {};
-        if (store.settings.usdaApiKey) headers['x-usda-api-key'] = store.settings.usdaApiKey;
-        const res = await fetch(`/api/usda/search?q=${encodeURIComponent(searchQuery)}`, { headers });
+        if (store.settings.fatSecretClientId) {
+          headers['x-fatsecret-client-id'] = store.settings.fatSecretClientId;
+          headers['x-fatsecret-client-secret'] = store.settings.fatSecretClientSecret;
+        }
+        const res = await fetch(`/api/fatsecret/search?q=${encodeURIComponent(searchQuery)}`, { headers });
         const data = await res.json();
+        if (data.error) setSearchError(data.error);
         setResults((data.foods ?? []).slice(0, 20));
-      } catch { setResults([]); }
+      } catch (e) { setSearchError(String(e)); setResults([]); }
       setSearching(false);
     }, 400);
-  }, [searchQuery, store.settings.usdaApiKey]);
+  }, [searchQuery, store.settings.fatSecretClientId, store.settings.fatSecretClientSecret]);
 
   function addFood(food: FoodResult) {
     const entry: FoodEntry = {
@@ -111,6 +117,7 @@ export default function CaloriesPage() {
     setShowSearch(false);
     setSearchQuery('');
     setResults([]);
+    setSearchError(null);
     setManual(emptyManual);
     setTab('search');
   }
@@ -243,6 +250,7 @@ export default function CaloriesPage() {
 
             <div className="flex-1 overflow-y-auto">
               {addedFeedback && <div className="mx-4 mt-3 p-3 bg-green-50 text-green-700 rounded-xl text-sm font-semibold">✓ Added {addedFeedback}</div>}
+              {searchError && <div className="mx-4 mt-3 p-3 bg-red-50 text-red-600 rounded-xl text-xs break-all">{searchError}</div>}
 
               {tab === 'search' && (
                 <>
@@ -251,7 +259,7 @@ export default function CaloriesPage() {
                     <div className="p-6 text-center text-gray-400">
                       <div className="w-14 h-14 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-2"><Utensils size={28} className="text-gray-300" /></div>
                       <p className="font-medium">No results for &ldquo;{searchQuery}&rdquo;</p>
-                      <p className="text-xs mt-2 text-gray-400">Try Manual entry or add a USDA API key in Settings</p>
+                      <p className="text-xs mt-2 text-gray-400">Try Manual entry or check your FatSecret credentials in Settings</p>
                     </div>
                   )}
                   {!searching && results.length === 0 && searchQuery.length < 2 && (
