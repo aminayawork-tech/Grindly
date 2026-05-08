@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Habit } from '@/lib/types';
 import { nanoid, todayKey, dateKey, last7Days, currentWeekDays, sevenDayLabel, habitColorClass } from '@/lib/utils';
+import { CheckSquare, TrendingUp, Flame, MoreHorizontal } from 'lucide-react';
 import StatCard from '@/components/StatCard';
-import { CheckSquare, TrendingUp, Flame, Check, MoreHorizontal } from 'lucide-react';
 import HabitIcon, { HABIT_ICONS } from '@/components/HabitIcon';
 
 const COLORS = ['orange', 'blue', 'green', 'purple', 'pink', 'red'] as const;
@@ -99,14 +99,20 @@ export default function HabitsPage() {
                         done ? `${colorCls.bg} text-white shadow-sm` : 'bg-white border-2 border-gray-200'
                       }`}
                     >
-                      {done && <Check size={14} />}
+                      {done && <span className="text-xs font-bold">✓</span>}
                     </button>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <HabitIcon name={habit.icon} size={14} />
+                        <span className={`flex-shrink-0 ${done ? 'text-gray-400' : 'text-gray-600'}`}>
+                          <HabitIcon name={habit.icon} size={14} />
+                        </span>
                         <span className={`font-semibold text-sm truncate ${done ? 'line-through text-gray-400' : 'text-gray-900'}`}>{habit.name}</span>
-                        {streak > 0 && <span className="text-xs font-bold text-orange-500 flex-shrink-0 flex items-center gap-0.5"><Flame size={10} />{streak}</span>}
+                        {streak > 0 && (
+                          <span className="text-xs font-bold text-orange-500 flex-shrink-0 flex items-center gap-0.5">
+                            <Flame size={10} />{streak}
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-gray-400 mt-0.5">{Math.round(rate * 100)}% this week</div>
                     </div>
@@ -130,7 +136,7 @@ export default function HabitsPage() {
                                   : 'bg-gray-100'
                               }`}
                             >
-                              {completed && <Check size={9} />}
+                              {completed && <span className="text-[9px] font-bold text-white">✓</span>}
                             </div>
                           );
                         })}
@@ -139,7 +145,7 @@ export default function HabitsPage() {
 
                     <button
                       onClick={() => setDeleteConfirm(confirming ? null : habit.id)}
-                      className="text-gray-300 hover:text-red-400 flex-shrink-0 leading-none transition-colors"
+                      className="text-gray-300 hover:text-red-400 flex-shrink-0 transition-colors"
                     >
                       <MoreHorizontal size={16} />
                     </button>
@@ -163,7 +169,9 @@ export default function HabitsPage() {
 
       {store.habits.length === 0 && (
         <div className="card text-center py-12">
-          <CheckSquare size={48} className="mx-auto text-gray-200 mb-3" />
+          <div className="w-16 h-16 bg-green-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+            <CheckSquare size={32} className="text-green-400" />
+          </div>
           <p className="font-semibold text-gray-500">No habits yet</p>
           <p className="text-sm text-gray-400 mt-1">Add your first habit to start building streaks</p>
         </div>

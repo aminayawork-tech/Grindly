@@ -4,44 +4,36 @@ import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { WorkoutSession, WorkoutSet } from '@/lib/types';
 import { nanoid, formatDuration, formatDate } from '@/lib/utils';
-import StatCard from '@/components/StatCard';
-import { Dumbbell, Activity, Waves, Bike, Mountain, Zap, PersonStanding, Swords, ArrowUp, ChevronDown, ArrowDownUp, RotateCcw, Minus, X, Flame } from 'lucide-react';
+import { Flame, Zap, Dumbbell, Activity, Leaf, Droplets, Shield } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import StatCard from '@/components/StatCard';
 
-const CALISTHENICS_PRESETS: { label: string; Icon: LucideIcon }[] = [
-  { label: 'Pull-Ups', Icon: ArrowUp },
-  { label: 'Dips', Icon: Dumbbell },
-  { label: 'Push-Ups', Icon: ChevronDown },
-  { label: 'Squats', Icon: ArrowDownUp },
-  { label: 'Lunges', Icon: ArrowDownUp },
-  { label: 'Burpees', Icon: Zap },
-  { label: 'Sit-Ups', Icon: RotateCcw },
-  { label: 'Plank', Icon: Minus },
+const CALISTHENICS_PRESETS = [
+  'Pull-Ups', 'Dips', 'Push-Ups', 'Squats', 'Lunges', 'Burpees', 'Sit-Ups', 'Plank',
 ];
 
-function getWorkoutIcon(name: string): LucideIcon {
+function workoutIconComponent(name: string): LucideIcon {
   const n = name.toLowerCase();
-  if (/jujitsu|bjj|jiu.?jitsu|grappl/.test(n)) return Swords;
+  if (/jujitsu|bjj|jiu.?jitsu|grappl/.test(n)) return Shield;
   if (/box|muay|kickbox/.test(n)) return Zap;
   if (/run|jog|sprint/.test(n)) return Activity;
-  if (/swim/.test(n)) return Waves;
-  if (/bike|cycl/.test(n)) return Bike;
-  if (/yoga/.test(n)) return PersonStanding;
-  if (/hike|walk/.test(n)) return Mountain;
-  if (/lift|weight|gym/.test(n)) return Dumbbell;
-  return Zap;
+  if (/swim/.test(n)) return Droplets;
+  if (/bike|cycl/.test(n)) return Zap;
+  if (/yoga/.test(n)) return Leaf;
+  if (/hike|walk/.test(n)) return Activity;
+  return Dumbbell;
 }
 
-function getLabel(w: WorkoutSession): { label: string; Icon: LucideIcon } {
-  if (w.name) return { label: w.name, Icon: getWorkoutIcon(w.name) };
-  const legacy: Record<string, { label: string; Icon: LucideIcon }> = {
-    pullUps: { label: 'Pull-Ups', Icon: ArrowUp },
-    dips: { label: 'Dips', Icon: Dumbbell },
-    pushUps: { label: 'Push-Ups', Icon: ChevronDown },
-    running: { label: 'Running', Icon: Activity },
-    custom: { label: 'Workout', Icon: Zap },
+function getLabel(w: WorkoutSession): string {
+  if (w.name) return w.name;
+  const legacy: Record<string, string> = {
+    pullUps: 'Pull-Ups',
+    dips: 'Dips',
+    pushUps: 'Push-Ups',
+    running: 'Running',
+    custom: 'Workout',
   };
-  return legacy[w.type] ?? { label: 'Workout', Icon: Zap };
+  return legacy[w.type] ?? 'Workout';
 }
 
 export default function FitnessPage() {
@@ -101,29 +93,32 @@ export default function FitnessPage() {
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" icon={<Dumbbell size={14} />} color="orange" compact />
-        <StatCard label="Cals" value={`${Math.round(totalCalories)}`} subtitle="burned" icon={<Flame size={14} />} color="red" compact />
-        <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" icon={<Activity size={14} />} color="blue" compact />
+        <StatCard label="Workouts" value={`${weeklyWorkouts}`} subtitle="this week" icon={<Flame size={14} />} color="orange" compact />
+        <StatCard label="Cals" value={`${Math.round(totalCalories)}`} subtitle="burned" icon={<Zap size={14} />} color="red" compact />
+        <StatCard label="Reps" value={`${totalReps}`} subtitle="recent" icon={<Dumbbell size={14} />} color="blue" compact />
       </div>
 
       <div>
         <h2 className="section-title mb-3">Recent Workouts</h2>
         {store.workouts.length === 0 ? (
           <div className="card text-center py-12">
-            <Dumbbell size={48} className="mx-auto text-gray-200 mb-3" />
+            <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Dumbbell size={32} className="text-orange-400" />
+            </div>
             <p className="font-semibold text-gray-500">No workouts yet</p>
             <p className="text-sm text-gray-400 mt-1">Tap + Log to get started</p>
           </div>
         ) : (
           <div className="space-y-3">
             {store.workouts.slice(0, 15).map(w => {
-              const { label, Icon: WorkoutIcon } = getLabel(w);
+              const label = getLabel(w);
+              const IconComp = workoutIconComponent(label);
               const repsTotal = w.sets.reduce((s, x) => s + x.reps, 0);
               const exercises = [...new Set(w.sets.map(s => s.exercise).filter(Boolean))];
               return (
                 <div key={w.id} className="card-sm flex items-center gap-4">
-                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-orange-500 flex-shrink-0">
-                    <WorkoutIcon size={24} />
+                  <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                    <IconComp size={22} className="text-orange-500" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-gray-900">{label}</div>
@@ -165,17 +160,17 @@ export default function FitnessPage() {
               <div>
                 <label className="label mb-2 block">Quick Add Exercise</label>
                 <div className="flex flex-wrap gap-2">
-                  {CALISTHENICS_PRESETS.map(p => (
+                  {CALISTHENICS_PRESETS.map(label => (
                     <button
-                      key={p.label}
-                      onClick={() => setActiveExercise(p.label)}
-                      className={`px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all flex items-center gap-1.5 ${
-                        activeExercise === p.label
+                      key={label}
+                      onClick={() => setActiveExercise(label)}
+                      className={`px-3 py-1.5 rounded-xl text-sm font-semibold border transition-all ${
+                        activeExercise === label
                           ? 'bg-blue-600 text-white border-blue-600'
                           : 'border-gray-200 text-gray-600 hover:border-blue-300'
                       }`}
                     >
-                      <p.Icon size={14} /> {p.label}
+                      {label}
                     </button>
                   ))}
                 </div>
@@ -184,14 +179,7 @@ export default function FitnessPage() {
               <div>
                 <label className="label mb-2 block">Sets {activeExercise && `· ${activeExercise}`}</label>
                 <div className="flex gap-2 mb-3">
-                  <input
-                    className="input"
-                    type="number"
-                    placeholder="Reps"
-                    value={repsInput}
-                    onChange={e => setRepsInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addSet()}
-                  />
+                  <input className="input" type="number" placeholder="Reps" value={repsInput} onChange={e => setRepsInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && addSet()} />
                   <input className="input w-24" type="number" placeholder="Rest (s)" value={restInput} onChange={e => setRestInput(e.target.value)} />
                   <button onClick={addSet} disabled={!repsInput} className="btn-primary px-4">+</button>
                 </div>
@@ -201,7 +189,7 @@ export default function FitnessPage() {
                       <div key={s.id} className="flex items-center justify-between bg-gray-50 rounded-xl px-4 py-2.5">
                         <span className="font-semibold text-sm text-gray-700">Set {i + 1}{s.exercise ? ` · ${s.exercise}` : ''}</span>
                         <span className="text-sm text-gray-500">{s.reps} reps · {s.restSeconds}s rest</span>
-                        <button onClick={() => setSets(prev => prev.filter(x => x.id !== s.id))} className="text-red-400 hover:text-red-600 flex items-center justify-center"><X size={14} /></button>
+                        <button onClick={() => setSets(prev => prev.filter(x => x.id !== s.id))} className="text-red-400 hover:text-red-600 text-sm">✕</button>
                       </div>
                     ))}
                   </div>

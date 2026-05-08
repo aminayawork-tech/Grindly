@@ -4,24 +4,25 @@ import { useState } from 'react';
 import { useStore } from '@/lib/store';
 import { Goal, GoalEntry } from '@/lib/types';
 import { categoryColor, nanoid, formatDate, dateKey } from '@/lib/utils';
+import { Flame, Utensils, Scale, CheckSquare, Dumbbell, DollarSign, Heart, Pill, Star, Target } from 'lucide-react';
 import ProgressRing from '@/components/ProgressRing';
 import StatCard from '@/components/StatCard';
-import { Dumbbell, Scale, DollarSign, Heart, Pill, Star, Target, Flame, Utensils, CheckSquare, TrendingUp, Check, Circle, ArrowRight } from 'lucide-react';
 
 const COLOR_RING: Record<string, string> = {
   orange: '#F97316', blue: '#2563EB', green: '#16A34A',
   pink: '#DB2777', purple: '#7C3AED', indigo: '#4F46E5',
 };
 
-function getCategoryIcon(category: string) {
+function CategoryIcon({ category, size = 22 }: { category: string; size?: number }) {
+  const props = { size };
   switch (category) {
-    case 'fitness': return <Dumbbell size={22} />;
-    case 'weight': return <Scale size={22} />;
-    case 'financial': return <DollarSign size={22} />;
-    case 'relationship': return <Heart size={22} />;
-    case 'health': return <Pill size={22} />;
-    case 'custom': return <Star size={22} />;
-    default: return <Target size={22} />;
+    case 'fitness': return <Dumbbell {...props} />;
+    case 'weight': return <Scale {...props} />;
+    case 'financial': return <DollarSign {...props} />;
+    case 'relationship': return <Heart {...props} />;
+    case 'health': return <Pill {...props} />;
+    case 'custom': return <Star {...props} />;
+    default: return <Target {...props} />;
   }
 }
 
@@ -150,8 +151,8 @@ export default function GoalsDashboard() {
             return (
               <div key={goal.id} className="card hover:shadow-md transition-shadow cursor-pointer" onClick={() => openLog(goal)}>
                 <div className="flex items-start gap-4">
-                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 flex-shrink-0 text-${color}-500`}>
-                    {getCategoryIcon(goal.category)}
+                  <div className={`w-12 h-12 rounded-2xl flex items-center justify-center bg-${color}-50 text-${color}-600 flex-shrink-0`}>
+                    <CategoryIcon category={goal.category} size={22} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-3">
@@ -175,13 +176,13 @@ export default function GoalsDashboard() {
                             : goal.progressValue >= m.value;
                           return (
                             <span key={m.id} className={`text-xs font-medium px-2 py-1 rounded-full flex items-center gap-1 ${achieved ? `bg-${color}-100 text-${color}-700` : 'bg-gray-100 text-gray-400'}`}>
-                              {achieved ? <Check size={10} /> : <Circle size={10} />} {m.title}
+                              {achieved ? '✓' : '○'} {m.title}
                             </span>
                           );
                         })}
                       </div>
                     )}
-                    <div className="mt-2 text-xs text-blue-500 font-semibold flex items-center gap-1">Tap to log activity <ArrowRight size={10} /></div>
+                    <div className="mt-2 text-xs text-blue-500 font-semibold">Tap to log activity →</div>
                   </div>
                 </div>
               </div>
@@ -195,7 +196,9 @@ export default function GoalsDashboard() {
           <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl">
             <div className="p-6 border-b border-gray-100">
               <div className="flex items-center gap-3">
-                <span className="text-2xl">{getCategoryIcon(editGoal.category)}</span>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center bg-${categoryColor(editGoal.category)}-50 text-${categoryColor(editGoal.category)}-600`}>
+                  <CategoryIcon category={editGoal.category} size={18} />
+                </div>
                 <div>
                   <h2 className="text-xl font-bold">{editGoal.title}</h2>
                   <p className="text-sm text-gray-400">Log today&apos;s activity</p>
