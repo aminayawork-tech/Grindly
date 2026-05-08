@@ -38,7 +38,6 @@ export default function Navigation() {
         <nav className="flex-1 p-4 space-y-1">
           {navItems.map(item => {
             const active = pathname === item.href;
-            const Icon = item.Icon;
             return (
               <Link
                 key={item.href}
@@ -49,7 +48,7 @@ export default function Navigation() {
                     : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                 }`}
               >
-                <Icon size={20} />
+                <item.Icon size={18} />
                 {item.label}
                 {active && <div className="ml-auto w-1.5 h-1.5 bg-blue-600 rounded-full" />}
               </Link>
@@ -62,12 +61,11 @@ export default function Navigation() {
         </div>
       </aside>
 
-      {/* Mobile bottom bar — scrollable, all 8 items */}
+      {/* Mobile bottom bar */}
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-40 safe-area-bottom">
         <div className="flex overflow-x-auto scrollbar-none">
           {navItems.map(item => {
             const active = pathname === item.href;
-            const Icon = item.Icon;
             return (
               <Link
                 key={item.href}
@@ -76,7 +74,7 @@ export default function Navigation() {
                   active ? 'text-blue-600' : 'text-gray-400'
                 }`}
               >
-                <Icon size={20} />
+                <item.Icon size={20} />
                 <span className={`text-[10px] font-semibold whitespace-nowrap ${active ? 'text-blue-600' : 'text-gray-400'}`}>
                   {item.label}
                 </span>
