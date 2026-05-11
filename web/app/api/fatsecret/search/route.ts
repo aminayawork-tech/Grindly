@@ -22,13 +22,18 @@ export async function GET(req: NextRequest) {
   if (!query) return NextResponse.json({ foods: [] });
 
   try {
-    const url = `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=1&action=process&page_size=30&fields=product_name,brands,serving_size,serving_quantity,nutriments&sort_by=unique_scans_n`;
+    const url = `https://world.openfoodfacts.org/api/v2/search?search_terms=${encodeURIComponent(query)}&fields=product_name,brands,serving_size,serving_quantity,nutriments&page_size=30&sort_by=unique_scans_n`;
     const res = await fetch(url, {
       headers: { 'User-Agent': 'Grindly/1.0 (grindly.app)' },
       cache: 'no-store',
     });
 
-    const data = await res.json() as { products?: OFFProduct[] };
+    const text = await res.text();
+    if (text.trimStart().startsWith('<')) {
+      return NextResponse.json({ error: 'Food database temporarily unavailable — try again in a moment', foods: [] });
+    }
+
+    const data = JSON.parse(text) as { products?: OFFProduct[] };
     const products = data.products ?? [];
 
     const foods = products
